@@ -3,7 +3,8 @@
 Atualizado em: 2026-11-05
 Branch: `main`
 Último commit de código: `a431fa1 feat(api): implement format endpoint with fallback handling`
-Remoto: `origin` configurado; `main` é enviada ao final desta sessão.
+Remoto: `origin` configurado; push de `main` **pendente** por falha de autenticação HTTPS
+nesta sessão. Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -160,6 +161,9 @@ pendentes. A documentação de continuidade é commitada separadamente.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
+- **Push pendente.** `git push -u origin main` falhou com “Invalid username or token”.
+  Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais. É necessário configurar uma
+  credencial válida do GitHub (Git Credential Manager ou equivalente) e repetir o push.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
   descrevem `/api/spellcheck`, rate limit e componentes de UI que ainda não existem.
   Use este arquivo como fonte de verdade do estado real.
