@@ -13,7 +13,18 @@ import type { BlockType, ClassifiedReport, ReportBlock, ReportPreset, SourceLine
 
 function isTitleLine(text: string, config: ReportPresetConfig): boolean {
   const normalized = normalizeKeyword(text);
-  return config.titleKeywords.some((keyword) => normalized.includes(normalizeKeyword(keyword)));
+  const startsWithTitleKeyword = config.titleKeywords.some((keyword) =>
+    normalized.startsWith(normalizeKeyword(keyword)),
+  );
+
+  if (startsWithTitleKeyword) {
+    return true;
+  }
+
+  return (
+    isUpperCaseLine(text) &&
+    config.titleKeywords.some((keyword) => normalized.includes(normalizeKeyword(keyword)))
+  );
 }
 
 function isSectionLine(text: string, config: ReportPresetConfig): boolean {

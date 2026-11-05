@@ -215,7 +215,9 @@ export function renderReport(report: ClassifiedReport, preset: ReportPreset): st
         entries.push(renderedLines.join(" "));
         break;
       case "signature":
-        pushBlank();
+        if (lastType !== "signature") {
+          pushBlank();
+        }
         entries.push(...renderedLines);
         break;
       case "paragraph":
