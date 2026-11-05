@@ -1,5 +1,9 @@
 # Especificação do produto — laudo-format
 
+> Documentos relacionados: [ROADMAP.md](./ROADMAP.md), [PROGRESS.md](./PROGRESS.md),
+> [docs/RULES.md](./docs/RULES.md), [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md),
+> [docs/API.md](./docs/API.md).
+
 ## 1. Visão
 
 `laudo-format` é uma aplicação web que recebe o texto bruto de um laudo descritivo
@@ -213,7 +217,7 @@ Como usuário mobile, quero usar a ferramenta sem zoom horizontal.
 
 ## 9. Regras de formatação
 
-As regras completas estão em [RULES.md](./RULES.md). Resumo:
+As regras completas estão em [docs/RULES.md](./docs/RULES.md). Resumo:
 
 - Título: `<b>texto</b>` + linha em branco.
 - Seção: `<b>texto</b>` com linha em branco antes e depois.
@@ -226,7 +230,7 @@ As regras completas estão em [RULES.md](./RULES.md). Resumo:
 
 ## 10. Contratos de API
 
-Detalhados em [API.md](./API.md).
+Detalhados em [docs/API.md](./docs/API.md).
 
 - `POST /api/format`: recebe `{ text, preset }` e devolve `{ html, warnings, meta }`.
 - `POST /api/spellcheck`: recebe `{ text }` e devolve `{ suggestions, warnings, meta }`.
