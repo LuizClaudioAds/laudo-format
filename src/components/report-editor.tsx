@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 
+import { SAMPLE_REPORTS } from "@/data/samples";
 import { REPORT_PRESETS, type ReportPreset } from "@/lib/format/types";
 
 import type { FormatStatus } from "./format-workbench";
@@ -16,10 +17,12 @@ function countNonEmptyLines(value: string): number {
 interface ReportEditorProps {
   text: string;
   preset: ReportPreset;
+  sampleId: string;
   status: FormatStatus;
   errorMessage: string | null;
   onChange: (value: string) => void;
   onPresetChange: (preset: ReportPreset) => void;
+  onSampleChange: (sampleId: string) => void;
   onClear: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
@@ -27,10 +30,12 @@ interface ReportEditorProps {
 export function ReportEditor({
   text,
   preset,
+  sampleId,
   status,
   errorMessage,
   onChange,
   onPresetChange,
+  onSampleChange,
   onClear,
   onSubmit,
 }: ReportEditorProps) {
@@ -66,6 +71,26 @@ export function ReportEditor({
         <p id="laudo-dica" className="text-xs text-zinc-500 dark:text-zinc-400">
           Limites: 20.000 caracteres e 500 linhas não vazias.
         </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor="laudo-exemplo" className="text-sm font-medium">
+          Carregar exemplo
+        </label>
+        <select
+          id="laudo-exemplo"
+          value={sampleId}
+          onChange={(event) => onSampleChange(event.target.value)}
+          disabled={isBusy}
+          className="max-w-full min-w-0 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900 outline-none focus-visible:border-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-400 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+        >
+          <option value="">Selecione um laudo fictício…</option>
+          {SAMPLE_REPORTS.map((sample) => (
+            <option key={sample.id} value={sample.id}>
+              {sample.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <fieldset disabled={isBusy} className="min-w-0">

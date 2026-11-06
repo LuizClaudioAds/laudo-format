@@ -1,4 +1,5 @@
 import { FormatWorkbench } from "@/components/format-workbench";
+import { PrivacyNotice } from "@/components/privacy-notice";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
           . O conteúdo clínico não é reescrito.
         </p>
       </header>
+      <PrivacyNotice />
       <FormatWorkbench />
     </main>
   );

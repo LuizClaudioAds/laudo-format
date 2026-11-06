@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { ReportEditor } from "@/components/report-editor";
 import { ReportPreview } from "@/components/report-preview";
+import { SAMPLE_REPORTS } from "@/data/samples";
 import type { FormatResult, ReportPreset } from "@/lib/format/types";
 
 export type FormatStatus = "idle" | "loading" | "error" | "success";
@@ -71,6 +72,7 @@ async function requestFormat(
 export function FormatWorkbench() {
   const [text, setText] = useState("");
   const [preset, setPreset] = useState<ReportPreset>("generico");
+  const [sampleId, setSampleId] = useState("");
   const [status, setStatus] = useState<FormatStatus>("idle");
   const [result, setResult] = useState<FormatResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -90,6 +92,7 @@ export function FormatWorkbench() {
 
   function handleTextChange(value: string) {
     setText(value);
+    setSampleId("");
     if (status === "success") {
       resetResult();
     }
@@ -102,10 +105,24 @@ export function FormatWorkbench() {
     }
   }
 
+  function handleSampleChange(value: string) {
+    setSampleId(value);
+
+    const sample = SAMPLE_REPORTS.find((entry) => entry.id === value);
+    if (!sample) return;
+
+    controllerRef.current?.abort();
+    controllerRef.current = null;
+    setText(sample.text);
+    setPreset(sample.preset);
+    resetResult();
+  }
+
   function handleClear() {
     controllerRef.current?.abort();
     controllerRef.current = null;
     setText("");
+    setSampleId("");
     resetResult();
   }
 
@@ -153,10 +170,12 @@ export function FormatWorkbench() {
         <ReportEditor
           text={text}
           preset={preset}
+          sampleId={sampleId}
           status={status}
           errorMessage={errorMessage}
           onChange={handleTextChange}
           onPresetChange={handlePresetChange}
+          onSampleChange={handleSampleChange}
           onClear={handleClear}
           onSubmit={handleSubmit}
         />
