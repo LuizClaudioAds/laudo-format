@@ -3,8 +3,8 @@
 Atualizado em: 2026-11-05
 Branch: `main`
 Último commit de código: `e749a4a feat(api): add size limits, rate limiting and request metadata`
-Remoto: `origin` configurado; push de `main` **pendente** por falha de autenticação HTTPS
-nesta sessão. Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais.
+Remoto: `origin` configurado; push de `main` **pendente** (a autenticação HTTPS falha ou
+trava aguardando credencial). Todos os commits das etapas 1–14 estão locais.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -183,10 +183,12 @@ commitadas separadamente.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push pendente.** `git push -u origin main` falhou com “Invalid username or token”.
-  Todos os commits estão locais, incluindo `79bdc5a`, `a431fa1`, `c23c7eb`, `724b2f7` e
-  `e749a4a`. É necessário configurar uma credencial válida do GitHub (Git Credential
-  Manager ou equivalente) e repetir o push.
+- **Push pendente.** `git push -u origin main` já falhou com “Invalid username or token”
+  e também ficou travado aguardando credencial interativa (timeout de 5 min). Não há
+  token em variáveis de ambiente nem credencial GitHub no Windows Credential Manager.
+  Todos os commits das etapas 1–14 estão locais (`7fc06f5` até `48d1213`). Configure
+  uma credencial válida do GitHub em um terminal interativo e repita o push; não deixar
+  o comando pendurado em scripts.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
   descrevem `/api/spellcheck`, rate limit e componentes de UI que ainda não existem.
   Use este arquivo como fonte de verdade do estado real.
