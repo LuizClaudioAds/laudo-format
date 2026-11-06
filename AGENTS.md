@@ -118,11 +118,11 @@ npm.cmd run test:e2e
 
 O estado detalhado, arquivos implementados e a próxima tarefa exata estão em `PROGRESS.md`. Resumo:
 
-- Etapas 1–16 commitadas.
-- Etapa 16 (abas de preview/HTML, copiar e baixar) foi concluída em `7232103`.
-- Ainda não existem `/api/spellcheck`, samples, aviso de privacidade, ortografia, testes de API/E2E, CI, README final ou configuração de deploy.
+- Etapas 1–17 commitadas.
+- Etapa 17 (samples fictícios, seletor de exemplo e aviso de privacidade) foi concluída em `3bc54e2`.
+- Ainda não existem `/api/spellcheck`, ortografia, testes de API/E2E, CI, README final ou configuração de deploy.
 
-Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 17; não comece a etapa 18 antes de concluí-la.
+Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 18; não comece a etapa 19 antes de concluí-la.
 
 ## 7. Quirks conhecidos
 
@@ -131,7 +131,7 @@ Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tare
 - `core.autocrlf=true` no Windows, mas `.gitattributes` força LF; commits devem manter LF.
 - O `npm.ps1` é bloqueado pela política do PowerShell; use `npm.cmd`.
 - Sem `GOOGLE_GENERATIVE_AI_API_KEY`, o modo esperado é fallback heurístico (HTTP 200).
-- O build atual passa; `POST /api/format` existe com rate limit e limite de 64 KiB, a UI real consome a rota e tem abas de preview/HTML com copiar/baixar, mas `/api/spellcheck`, samples e aviso de privacidade ainda não.
+- O build atual passa; `POST /api/format` existe com rate limit e limite de 64 KiB, a UI real consome a rota e tem abas de preview/HTML com copiar/baixar, samples e aviso de privacidade, mas `/api/spellcheck` e o painel de ortografia ainda não.
 - Sem Upstash, o rate limit usa memória por instância (comportamento esperado em dev).
 - Com `cacheComponents` ativo, não exportar `runtime` em Route Handlers; o runtime Node.js é o padrão.
 - `docs/API.md` e `docs/ARCHITECTURE.md` descrevem o alvo; confirme o que já existe em `PROGRESS.md`.

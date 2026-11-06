@@ -2,9 +2,9 @@
 
 Atualizado em: 2026-11-06
 Branch: `main`
-Último commit de código: `7232103 feat(ui): add preview, html source and copy actions`
+Último commit de código: `3bc54e2 feat(ui): add sample reports and privacy notice`
 Remoto: `origin` configurado; push de `main` **pendente** (a autenticação HTTPS falha ou
-trava aguardando credencial). Todos os commits das etapas 1–16 estão locais.
+trava aguardando credencial). Todos os commits das etapas 1–17 estão locais.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -22,7 +22,7 @@ trava aguardando credencial). Todos os commits das etapas 1–16 estão locais.
 
 | Comando                          | Resultado                                                                      |
 | -------------------------------- | ------------------------------------------------------------------------------ |
-| `npm.cmd run test:unit -- --run` | 7 arquivos, **64 testes passando**                                             |
+| `npm.cmd run test:unit -- --run` | 8 arquivos, **68 testes passando**                                             |
 | `npm.cmd run test:coverage`      | passou nos thresholds; 90,61% statements, 85,77% branches, 90,66% lines        |
 | `npm.cmd run lint`               | passou                                                                         |
 | `npm.cmd run typecheck`          | passou                                                                         |
@@ -40,18 +40,19 @@ Smoke test manual com `next start` na porta 3100 (após `npm.cmd run build`):
 - corpo de 80.000 bytes → `413 INPUT_TOO_LARGE` (“corpo da requisição … 65.536 bytes”);
 - requisição válida → `200` com `X-RateLimit-Remaining`, `x-request-id` e `Cache-Control: no-store`;
 - 11ª requisição no minuto → `429 RATE_LIMITED` com `Retry-After: 60`;
-- `GET /` → `200` com `lang="pt-BR"`, título “Formatador de laudos”, `#laudo-texto` e
-  preset “Citologia”; `POST /api/format` → `200` com `usedFallback: true`;
+- `GET /` → `200` com `lang="pt-BR"`, título “Formatador de laudos”, `#laudo-texto`,
+  preset “Citologia”, aviso de privacidade, `#laudo-exemplo` e a opção “Citologia
+  cervicovaginal”; `POST /api/format` → `200` com `usedFallback: true`;
 - bundle cliente contém as ações “Copiar HTML” e “Baixar .html” (verificado no build).
 
 ## 2. Etapa atual
 
-A etapa 16 (`feat(ui): add preview, html source and copy actions`) está **implementada,
-verificada e commitada** em `7232103`. O painel de resultado agora tem abas
-“Pré-visualização” e “HTML” com navegação por setas/Home/End, exibe o fragmento exato
-em modo somente leitura, copia o HTML com feedback `aria-live` e baixa
-`laudo-formatado.html` com o mesmo conteúdo. O download usa Blob em memória e revoga a
-object URL; nada é persistido.
+A etapa 17 (`feat(ui): add sample reports and privacy notice`) está **implementada,
+verificada e commitada** em `3bc54e2`. A UI ganhou três laudos fictícios em
+`src/data/samples.ts` (biópsia gástrica, citologia cervicovaginal e
+imuno-histoquímica), um seletor “Carregar exemplo” que preenche o texto e ajusta o
+preset, e um aviso de privacidade não bloqueante com botão “Entendi” (dispensa apenas
+em memória, sem storage).
 
 O `POST /api/format` já aplica rate limit por IP hasheado (10/min), limite de 64 KiB no
 corpo da requisição, helpers HTTP reutilizáveis e os headers `X-RateLimit-*` e
@@ -63,7 +64,7 @@ Commits existentes:
 
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
 `ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`,
-`33b76f3`, `7232103`.
+`33b76f3`, `7232103`, `3bc54e2`.
 
 Arquivos implementados:
 
@@ -136,6 +137,12 @@ Arquivos implementados:
   metadados do resultado.
 - `src/components/html-output.tsx`: aba somente leitura com o fragmento HTML exato,
   escapado pelo React e quebrado em várias linhas apenas visualmente.
+- `src/data/samples.ts`: três laudos fictícios rotulados como exemplo, com preset
+  associado e sem identificadores reais.
+- `src/components/privacy-notice.tsx`: aviso de privacidade não bloqueante com
+  “Entendi”; a dispensa vale só para a sessão atual e não usa storage.
+- `tests/unit/samples.test.ts`: 4 testes de quantidade, ids/rótulos únicos, cobertura
+  dos presets e segmentação válida dos samples.
 - `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/globals.css`: UI real em pt-BR,
   `lang="pt-BR"`, metadados do produto, grid de dois painéis e fontes do scaffold.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
@@ -147,14 +154,13 @@ Arquivos implementados:
 ## 4. Nenhum código pendente de commit
 
 Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13), `e749a4a` (etapa 14),
-`33b76f3` (etapa 15) e `7232103` (etapa 16), não há arquivos de código pendentes.
-Atualizações de documentação de continuidade são commitadas separadamente.
+`33b76f3` (etapa 15), `7232103` (etapa 16) e `3bc54e2` (etapa 17), não há arquivos de
+código pendentes. Atualizações de documentação de continuidade são commitadas
+separadamente.
 
 ## 5. Ainda não implementado
 
 - `src/app/api/spellcheck/route.ts`.
-- `src/data/samples.ts` e o botão “Carregar exemplo” (etapa 17).
-- Aviso de privacidade na primeira visita (etapa 17).
 - Painel de sugestões ortográficas (etapa 19).
 - Testes de integração das rotas (etapa 20).
 - Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
@@ -217,22 +223,29 @@ Atualizações de documentação de continuidade são commitadas separadamente.
     usa a Clipboard API e, se indisponível, orienta a cópia manual; “Baixar .html” cria
     um Blob em memória com exatamente `result.html` e revoga a object URL em seguida.
     Nenhum conteúdo é gravado em storage ou log.
+20. **Samples explícitos e aviso sem storage.** Os três laudos de exemplo usam o nome
+    “Exemplo Fictício” e registro zerado, e ajustam o preset ao serem carregados.
+    Editar o texto ou limpar desfaz a seleção do exemplo. O aviso de privacidade pode
+    ser dispensado apenas em memória; não se grava nem o texto nem a dispensa em
+    `localStorage`/`sessionStorage`.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push pendente.** `git push -u origin main` já falhou com “Invalid username or token”
   e também ficou travado aguardando credencial interativa (timeout de 5 min). Não há
   token em variáveis de ambiente nem credencial GitHub no Windows Credential Manager.
-  Todos os commits das etapas 1–16 estão locais (`7fc06f5` até `7232103`). Configure
+  Todos os commits das etapas 1–17 estão locais (`7fc06f5` até `3bc54e2`). Configure
   uma credencial válida do GitHub em um terminal interativo e repita o push; não deixar
   o comando pendurado em scripts.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
-  descrevem `/api/spellcheck`, aviso de privacidade e painel de ortografia que ainda
-  não existem. Use este arquivo como fonte de verdade do estado real.
+  descrevem `/api/spellcheck` e o painel de ortografia que ainda não existem. Use este
+  arquivo como fonte de verdade do estado real.
 - **UI sem testes automatizados.** Os componentes foram verificados por lint,
-  typecheck, build e smoke test (`GET /`, `POST /api/format` e presença das ações no
-  bundle), mas ainda não há testes de componente nem E2E; copiar/baixar em navegador
-  real fica para a etapa 21.
+  typecheck, build e smoke test (`GET /`, `POST /api/format`, aviso e samples no HTML),
+  mas ainda não há testes de componente nem E2E; copiar/baixar, dispensa do aviso e
+  carregamento de exemplo em navegador real ficam para a etapa 21.
+- **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
+  isso é intencional para não usar storage.
 - **README padrão.**
 - **API parcial.** `POST /api/format` existe; `POST /api/spellcheck` ainda não.
 - **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
@@ -262,21 +275,24 @@ Atualizações de documentação de continuidade são commitadas separadamente.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 17
+### 8.1 Iniciar a etapa 18
 
-Etapa 17 — `feat(ui): add sample reports and privacy notice`:
+Etapa 18 — `feat(api): add optional spelling suggestion endpoint`:
 
-- Criar `src/data/samples.ts` com pelo menos três laudos fictícios realistas cobrindo
-  os presets `generico` e `citologia`, sem qualquer dado real de paciente.
-- Adicionar “Carregar exemplo” no editor, acessível por teclado, preenchendo o texto
-  com um sample e mantendo o conteúdo editável.
-- Exibir aviso de privacidade não bloqueante na primeira visita, informando que o texto
-  não é persistido e que dados reais não devem ser usados.
-- Cobrir os samples com teste unitário de forma e conteúdo fictício, se aplicável.
-- Ortografia continua na etapa 19; testes E2E na 21. Não antecipar.
+- Adicionar validação de sugestões ortográficas contra o texto original: descartar
+  `lineId` inválido, offsets fora da linha, `original` que não coincide exatamente,
+  `suggestion` igual ao original, duplicatas/sobreposições e excesso de sugestões.
+- Criar a orquestração de IA em `src/lib/ai/spellcheck.ts` com `temperature: 0`,
+  timeout de 20 s, `maxRetries: 1`, modo mock e fallback para `suggestions: []` com
+  aviso em pt-BR (HTTP 200).
+- Criar `src/app/api/spellcheck/route.ts` com `maxDuration = 30`, corpo limitado a
+  64 KiB via `readJsonBody`, rate limit de 5 req/min por IP hasheado, headers
+  `X-RateLimit-*`/`Retry-After`, `Cache-Control: no-store` e o mesmo envelope de erro.
+- Cobrir validação e fallback com testes unitários; a UI de sugestões fica na etapa 19
+  e os testes de rota na etapa 20.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 18 antes de concluir e
-registrar a etapa 17.
+Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 19 antes de concluir e
+registrar a etapa 18.
 
 ## 9. Comandos de verificação
 
@@ -314,8 +330,9 @@ docs/RULES.md              regras de formatação
 docs/adr/                  decisões arquiteturais
 src/app/                   App Router; workbench pt-BR
 src/app/api/format/        POST /api/format
-src/components/            workbench, editor e preview do laudo
+src/components/            workbench, editor, preview, aviso e aba HTML
 src/config/report-rules.ts presets e regras
+src/data/samples.ts        laudos fictícios do seletor de exemplo
 src/lib/env.ts             ambiente
 src/lib/errors.ts          AppError
 src/lib/http.ts            helpers JSON, erro e limite de corpo

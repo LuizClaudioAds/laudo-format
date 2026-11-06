@@ -59,19 +59,19 @@ Legenda:
 
 - [x] Substituir a página padrão do create-next-app pelo workbench real.
 - [x] Layout responsivo de dois painéis: entrada e resultado.
-- [ ] Contagem de caracteres/linhas, limpar e carregar exemplo (contagem e limpar concluídos na etapa 15; exemplo na etapa 17).
+- [x] Contagem de caracteres/linhas, limpar e carregar exemplo.
 - [x] Seletor de preset `generico`/`citologia`.
 - [x] Abas de pré-visualização e HTML exato.
 - [x] Botões de copiar e baixar o fragmento.
-- [ ] Aviso de privacidade visível na primeira visita.
+- [x] Aviso de privacidade visível na primeira visita.
 - [x] Estados de carregamento, erro, fallback e `aria-live`.
-- [ ] Laudos fictícios em `src/data/samples.ts`.
+- [x] Laudos fictícios em `src/data/samples.ts`.
 - [ ] Painel de sugestões ortográficas com “Aplicar” e “Ignorar”.
 - [ ] Acessibilidade e mobile validados.
 
 ## 6. Testes e qualidade
 
-- [x] 64 testes unitários passando.
+- [x] 68 testes unitários passando.
 - [x] Cobertura global acima de 80% em statements/linhas e 75% em branches.
 - [ ] Testes de integração das rotas com provider mock.
 - [ ] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
@@ -108,7 +108,7 @@ Legenda:
 | 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`) |
 | 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`) |
 | 16  | `feat(ui): add preview, html source and copy actions`              | concluído (`7232103`) |
-| 17  | `feat(ui): add sample reports and privacy notice`                  | pendente              |
+| 17  | `feat(ui): add sample reports and privacy notice`                  | concluído (`3bc54e2`) |
 | 18  | `feat(api): add optional spelling suggestion endpoint`             | pendente              |
 | 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | pendente              |
 | 20  | `test(api): cover format and spellcheck routes with mock provider` | pendente              |
