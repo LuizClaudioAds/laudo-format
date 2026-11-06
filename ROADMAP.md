@@ -61,8 +61,8 @@ Legenda:
 - [x] Layout responsivo de dois painéis: entrada e resultado.
 - [ ] Contagem de caracteres/linhas, limpar e carregar exemplo (contagem e limpar concluídos na etapa 15; exemplo na etapa 17).
 - [x] Seletor de preset `generico`/`citologia`.
-- [ ] Abas de pré-visualização e HTML exato.
-- [ ] Botões de copiar e baixar o fragmento.
+- [x] Abas de pré-visualização e HTML exato.
+- [x] Botões de copiar e baixar o fragmento.
 - [ ] Aviso de privacidade visível na primeira visita.
 - [x] Estados de carregamento, erro, fallback e `aria-live`.
 - [ ] Laudos fictícios em `src/data/samples.ts`.
@@ -107,7 +107,7 @@ Legenda:
 | 13  | `feat(api): implement format endpoint with fallback handling`      | concluído (`a431fa1`) |
 | 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`) |
 | 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`) |
-| 16  | `feat(ui): add preview, html source and copy actions`              | pendente              |
+| 16  | `feat(ui): add preview, html source and copy actions`              | concluído (`7232103`) |
 | 17  | `feat(ui): add sample reports and privacy notice`                  | pendente              |
 | 18  | `feat(api): add optional spelling suggestion endpoint`             | pendente              |
 | 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | pendente              |

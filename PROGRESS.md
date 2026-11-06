@@ -2,9 +2,9 @@
 
 Atualizado em: 2026-11-06
 Branch: `main`
-Último commit de código: `33b76f3 feat(ui): build two-pane formatting workbench`
+Último commit de código: `7232103 feat(ui): add preview, html source and copy actions`
 Remoto: `origin` configurado; push de `main` **pendente** (a autenticação HTTPS falha ou
-trava aguardando credencial). Todos os commits das etapas 1–15 estão locais.
+trava aguardando credencial). Todos os commits das etapas 1–16 estão locais.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -41,15 +41,17 @@ Smoke test manual com `next start` na porta 3100 (após `npm.cmd run build`):
 - requisição válida → `200` com `X-RateLimit-Remaining`, `x-request-id` e `Cache-Control: no-store`;
 - 11ª requisição no minuto → `429 RATE_LIMITED` com `Retry-After: 60`;
 - `GET /` → `200` com `lang="pt-BR"`, título “Formatador de laudos”, `#laudo-texto` e
-  preset “Citologia”; `POST /api/format` → `200` com `usedFallback: true`.
+  preset “Citologia”; `POST /api/format` → `200` com `usedFallback: true`;
+- bundle cliente contém as ações “Copiar HTML” e “Baixar .html” (verificado no build).
 
 ## 2. Etapa atual
 
-A etapa 15 (`feat(ui): build two-pane formatting workbench`) está **implementada,
-verificada e commitada** em `33b76f3`. A UI real substituiu o template do
-create-next-app: dois painéis responsivos, editor com contagem de caracteres e linhas,
-limpar, presets `generico`/`citologia`, consumo de `POST /api/format` com estados de
-carregamento, erro e fallback, e regiões `aria-live`.
+A etapa 16 (`feat(ui): add preview, html source and copy actions`) está **implementada,
+verificada e commitada** em `7232103`. O painel de resultado agora tem abas
+“Pré-visualização” e “HTML” com navegação por setas/Home/End, exibe o fragmento exato
+em modo somente leitura, copia o HTML com feedback `aria-live` e baixa
+`laudo-formatado.html` com o mesmo conteúdo. O download usa Blob em memória e revoga a
+object URL; nada é persistido.
 
 O `POST /api/format` já aplica rate limit por IP hasheado (10/min), limite de 64 KiB no
 corpo da requisição, helpers HTTP reutilizáveis e os headers `X-RateLimit-*` e
@@ -61,7 +63,7 @@ Commits existentes:
 
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
 `ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`,
-`33b76f3`.
+`33b76f3`, `7232103`.
 
 Arquivos implementados:
 
@@ -129,8 +131,11 @@ Arquivos implementados:
 - `src/components/report-editor.tsx`: formulário com textarea, contagem de caracteres e
   linhas não vazias, presets `generico`/`citologia`, erro com `role="alert"`, status
   `aria-live` e botões formatar/limpar.
-- `src/components/report-preview.tsx`: skeleton de carregamento, lista de avisos,
-  fragmento HTML renderizado e metadados do resultado.
+- `src/components/report-preview.tsx`: skeleton de carregamento, avisos, abas de
+  pré-visualização/HTML com teclado, ações de copiar e baixar, feedback `aria-live` e
+  metadados do resultado.
+- `src/components/html-output.tsx`: aba somente leitura com o fragmento HTML exato,
+  escapado pelo React e quebrado em várias linhas apenas visualmente.
 - `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/globals.css`: UI real em pt-BR,
   `lang="pt-BR"`, metadados do produto, grid de dois painéis e fontes do scaffold.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
@@ -141,15 +146,14 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13), `e749a4a` (etapa 14) e
-`33b76f3` (etapa 15), não há arquivos de código pendentes. Atualizações de documentação
-de continuidade são commitadas separadamente.
+Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13), `e749a4a` (etapa 14),
+`33b76f3` (etapa 15) e `7232103` (etapa 16), não há arquivos de código pendentes.
+Atualizações de documentação de continuidade são commitadas separadamente.
 
 ## 5. Ainda não implementado
 
 - `src/app/api/spellcheck/route.ts`.
 - `src/data/samples.ts` e o botão “Carregar exemplo” (etapa 17).
-- Abas de pré-visualização/HTML exato e botões de copiar/baixar (etapa 16).
 - Aviso de privacidade na primeira visita (etapa 17).
 - Painel de sugestões ortográficas (etapa 19).
 - Testes de integração das rotas (etapa 20).
@@ -208,22 +212,27 @@ de continuidade são commitadas separadamente.
     linhas e 64 KiB continuam sendo impostos pelo servidor, que é a fonte de verdade.
     Editar texto ou preset depois de um resultado bem-sucedido limpa o resultado para
     evitar exibição desatualizada.
+19. **Abas acessíveis e ações sem persistência.** O painel de resultado usa o padrão
+    ARIA de abas com `aria-selected`, roving tabindex e setas/Home/End. “Copiar HTML”
+    usa a Clipboard API e, se indisponível, orienta a cópia manual; “Baixar .html” cria
+    um Blob em memória com exatamente `result.html` e revoga a object URL em seguida.
+    Nenhum conteúdo é gravado em storage ou log.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push pendente.** `git push -u origin main` já falhou com “Invalid username or token”
   e também ficou travado aguardando credencial interativa (timeout de 5 min). Não há
   token em variáveis de ambiente nem credencial GitHub no Windows Credential Manager.
-  Todos os commits das etapas 1–15 estão locais (`7fc06f5` até `33b76f3`). Configure
+  Todos os commits das etapas 1–16 estão locais (`7fc06f5` até `7232103`). Configure
   uma credencial válida do GitHub em um terminal interativo e repita o push; não deixar
   o comando pendurado em scripts.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
-  descrevem `/api/spellcheck`, abas de HTML, aviso de privacidade e painel de
-  ortografia que ainda não existem. Use este arquivo como fonte de verdade do estado
-  real.
+  descrevem `/api/spellcheck`, aviso de privacidade e painel de ortografia que ainda
+  não existem. Use este arquivo como fonte de verdade do estado real.
 - **UI sem testes automatizados.** Os componentes foram verificados por lint,
-  typecheck, build e smoke test (`GET /` e `POST /api/format`), mas ainda não há testes
-  de componente nem E2E; a cobertura de fluxo no navegador fica para a etapa 21.
+  typecheck, build e smoke test (`GET /`, `POST /api/format` e presença das ações no
+  bundle), mas ainda não há testes de componente nem E2E; copiar/baixar em navegador
+  real fica para a etapa 21.
 - **README padrão.**
 - **API parcial.** `POST /api/format` existe; `POST /api/spellcheck` ainda não.
 - **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
@@ -253,22 +262,21 @@ de continuidade são commitadas separadamente.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 16
+### 8.1 Iniciar a etapa 17
 
-Etapa 16 — `feat(ui): add preview, html source and copy actions`:
+Etapa 17 — `feat(ui): add sample reports and privacy notice`:
 
-- Adicionar abas “Pré-visualização” e “HTML” no painel de resultado.
-- Exibir o fragmento exato em modo somente leitura na aba HTML, mantendo o escape e
-  apenas `<b>`, `<i>` e `<br>`.
-- Adicionar botões de copiar e baixar o fragmento, com feedback acessível (`aria-live`)
-  e sem registrar o conteúdo em logs.
-- Preservar os estados de carregamento, erro, fallback e o reset do resultado ao
-  editar texto ou preset.
-- “Carregar exemplo” e aviso de privacidade continuam na etapa 17; ortografia na 19;
-  testes E2E na 21. Não antecipar.
+- Criar `src/data/samples.ts` com pelo menos três laudos fictícios realistas cobrindo
+  os presets `generico` e `citologia`, sem qualquer dado real de paciente.
+- Adicionar “Carregar exemplo” no editor, acessível por teclado, preenchendo o texto
+  com um sample e mantendo o conteúdo editável.
+- Exibir aviso de privacidade não bloqueante na primeira visita, informando que o texto
+  não é persistido e que dados reais não devem ser usados.
+- Cobrir os samples com teste unitário de forma e conteúdo fictício, se aplicável.
+- Ortografia continua na etapa 19; testes E2E na 21. Não antecipar.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 17 antes de concluir e
-registrar a etapa 16.
+Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 18 antes de concluir e
+registrar a etapa 17.
 
 ## 9. Comandos de verificação
 
