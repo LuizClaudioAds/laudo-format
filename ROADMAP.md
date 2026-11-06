@@ -57,14 +57,14 @@ Legenda:
 
 ## 5. Interface
 
-- [ ] Substituir a página padrão do create-next-app pelo workbench real.
-- [ ] Layout responsivo de dois painéis: entrada e resultado.
-- [ ] Contagem de caracteres/linhas, limpar e carregar exemplo.
-- [ ] Seletor de preset `generico`/`citologia`.
+- [x] Substituir a página padrão do create-next-app pelo workbench real.
+- [x] Layout responsivo de dois painéis: entrada e resultado.
+- [ ] Contagem de caracteres/linhas, limpar e carregar exemplo (contagem e limpar concluídos na etapa 15; exemplo na etapa 17).
+- [x] Seletor de preset `generico`/`citologia`.
 - [ ] Abas de pré-visualização e HTML exato.
 - [ ] Botões de copiar e baixar o fragmento.
 - [ ] Aviso de privacidade visível na primeira visita.
-- [ ] Estados de carregamento, erro, fallback e `aria-live`.
+- [x] Estados de carregamento, erro, fallback e `aria-live`.
 - [ ] Laudos fictícios em `src/data/samples.ts`.
 - [ ] Painel de sugestões ortográficas com “Aplicar” e “Ignorar”.
 - [ ] Acessibilidade e mobile validados.
@@ -106,7 +106,7 @@ Legenda:
 | 12  | `feat(ai): add portuguese classification prompt and repair logic`  | concluído (`79bdc5a`) |
 | 13  | `feat(api): implement format endpoint with fallback handling`      | concluído (`a431fa1`) |
 | 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`) |
-| 15  | `feat(ui): build two-pane formatting workbench`                    | pendente              |
+| 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`) |
 | 16  | `feat(ui): add preview, html source and copy actions`              | pendente              |
 | 17  | `feat(ui): add sample reports and privacy notice`                  | pendente              |
 | 18  | `feat(api): add optional spelling suggestion endpoint`             | pendente              |

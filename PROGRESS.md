@@ -1,10 +1,10 @@
 # Progresso — laudo-format
 
-Atualizado em: 2026-11-05
+Atualizado em: 2026-11-06
 Branch: `main`
-Último commit de código: `e749a4a feat(api): add size limits, rate limiting and request metadata`
+Último commit de código: `33b76f3 feat(ui): build two-pane formatting workbench`
 Remoto: `origin` configurado; push de `main` **pendente** (a autenticação HTTPS falha ou
-trava aguardando credencial). Todos os commits das etapas 1–14 estão locais.
+trava aguardando credencial). Todos os commits das etapas 1–15 estão locais.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -26,6 +26,7 @@ trava aguardando credencial). Todos os commits das etapas 1–14 estão locais.
 | `npm.cmd run test:coverage`      | passou nos thresholds; 90,61% statements, 85,77% branches, 90,66% lines        |
 | `npm.cmd run lint`               | passou                                                                         |
 | `npm.cmd run typecheck`          | passou                                                                         |
+| `npm.cmd run format:check`       | passou                                                                         |
 | `npm.cmd run build`              | passou; `/` e `/_not-found` estáticas; `/api/format` dinâmica                  |
 | `npm.cmd run test:e2e`           | não executado; browsers do Playwright não instalados e ainda não há testes E2E |
 
@@ -38,23 +39,29 @@ Smoke test manual com `next start` na porta 3100 (após `npm.cmd run build`):
 
 - corpo de 80.000 bytes → `413 INPUT_TOO_LARGE` (“corpo da requisição … 65.536 bytes”);
 - requisição válida → `200` com `X-RateLimit-Remaining`, `x-request-id` e `Cache-Control: no-store`;
-- 11ª requisição no minuto → `429 RATE_LIMITED` com `Retry-After: 60`.
+- 11ª requisição no minuto → `429 RATE_LIMITED` com `Retry-After: 60`;
+- `GET /` → `200` com `lang="pt-BR"`, título “Formatador de laudos”, `#laudo-texto` e
+  preset “Citologia”; `POST /api/format` → `200` com `usedFallback: true`.
 
 ## 2. Etapa atual
 
-A etapa 14 (`feat(api): add size limits, rate limiting and request metadata`) está
-**implementada, verificada e commitada** em `e749a4a`. A etapa 15 ainda não começou.
+A etapa 15 (`feat(ui): build two-pane formatting workbench`) está **implementada,
+verificada e commitada** em `33b76f3`. A UI real substituiu o template do
+create-next-app: dois painéis responsivos, editor com contagem de caracteres e linhas,
+limpar, presets `generico`/`citologia`, consumo de `POST /api/format` com estados de
+carregamento, erro e fallback, e regiões `aria-live`.
 
 O `POST /api/format` já aplica rate limit por IP hasheado (10/min), limite de 64 KiB no
 corpo da requisição, helpers HTTP reutilizáveis e os headers `X-RateLimit-*` e
-`Retry-After`. Ainda faltam o endpoint de ortografia e a UI real.
+`Retry-After`. O endpoint de ortografia ainda não existe.
 
 ## 3. Implementado e commitado
 
 Commits existentes:
 
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
-`ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`.
+`ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`,
+`33b76f3`.
 
 Arquivos implementados:
 
@@ -116,6 +123,16 @@ Arquivos implementados:
   memória (limite, isolamento por IP e por tipo), mapeamento do Upstash (liberada,
   negada) e fallback em memória quando o Upstash falha; os mocks de `@upstash/*` ficam
   no próprio arquivo de teste.
+- `src/components/format-workbench.tsx`: client component com o fluxo da UI, fetch de
+  `POST /api/format`, `AbortController` para descartar respostas antigas, type guard do
+  payload e invalidação do resultado quando texto ou preset mudam.
+- `src/components/report-editor.tsx`: formulário com textarea, contagem de caracteres e
+  linhas não vazias, presets `generico`/`citologia`, erro com `role="alert"`, status
+  `aria-live` e botões formatar/limpar.
+- `src/components/report-preview.tsx`: skeleton de carregamento, lista de avisos,
+  fragmento HTML renderizado e metadados do resultado.
+- `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/globals.css`: UI real em pt-BR,
+  `lang="pt-BR"`, metadados do produto, grid de dois painéis e fontes do scaffold.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
   Prettier, commitlint, Husky e lint-staged.
 - `SPEC.md` (movido de `docs/SPEC.md` nesta sessão), `docs/RULES.md`,
@@ -124,18 +141,19 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13) e `e749a4a` (etapa 14), não
-há arquivos de código pendentes. Atualizações de documentação de continuidade são
-commitadas separadamente.
+Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13), `e749a4a` (etapa 14) e
+`33b76f3` (etapa 15), não há arquivos de código pendentes. Atualizações de documentação
+de continuidade são commitadas separadamente.
 
 ## 5. Ainda não implementado
 
 - `src/app/api/spellcheck/route.ts`.
-- `src/data/samples.ts`.
-- `src/components/**` e a UI real; `src/app/page.tsx` ainda é o template padrão.
-- Painel de sugestões ortográficas.
+- `src/data/samples.ts` e o botão “Carregar exemplo” (etapa 17).
+- Abas de pré-visualização/HTML exato e botões de copiar/baixar (etapa 16).
+- Aviso de privacidade na primeira visita (etapa 17).
+- Painel de sugestões ortográficas (etapa 19).
 - Testes de integração das rotas (etapa 20).
-- Testes E2E.
+- Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
 - `.github/workflows/ci.yml`.
 - README final; o atual é o template do create-next-app.
 - Configuração da Vercel e headers de segurança no `next.config.ts`.
@@ -180,20 +198,32 @@ commitadas separadamente.
 16. **Corpo lido em stream com teto.** `readJsonBody` rejeita `content-length` acima do
     teto e cancela a leitura assim que ultrapassa 64 KiB, sem reter payload maior em
     memória e sem logar conteúdo algum.
+17. **UI com um único client boundary.** `FormatWorkbench` é o único componente
+    `"use client"`; editor e resultado são apresentacionais. O fetch usa
+    `AbortController` para descartar respostas antigas e valida o payload com type
+    guard antes de renderizar. O fragmento só é injetado com `dangerouslySetInnerHTML`
+    porque o servidor já escapou o texto e restringiu as tags a `<b>`, `<i>` e `<br>`.
+18. **Contagens na UI, limites na API.** A interface mostra caracteres e linhas não
+    vazias e impede envio de texto vazio, mas os limites de 20.000 caracteres, 500
+    linhas e 64 KiB continuam sendo impostos pelo servidor, que é a fonte de verdade.
+    Editar texto ou preset depois de um resultado bem-sucedido limpa o resultado para
+    evitar exibição desatualizada.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push pendente.** `git push -u origin main` já falhou com “Invalid username or token”
   e também ficou travado aguardando credencial interativa (timeout de 5 min). Não há
   token em variáveis de ambiente nem credencial GitHub no Windows Credential Manager.
-  Todos os commits das etapas 1–14 estão locais (`7fc06f5` até `48d1213`). Configure
+  Todos os commits das etapas 1–15 estão locais (`7fc06f5` até `33b76f3`). Configure
   uma credencial válida do GitHub em um terminal interativo e repita o push; não deixar
   o comando pendurado em scripts.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
-  descrevem `/api/spellcheck`, rate limit e componentes de UI que ainda não existem.
-  Use este arquivo como fonte de verdade do estado real.
-- **UI padrão.** `src/app/page.tsx`, `layout.tsx` e `globals.css` ainda são do
-  create-next-app.
+  descrevem `/api/spellcheck`, abas de HTML, aviso de privacidade e painel de
+  ortografia que ainda não existem. Use este arquivo como fonte de verdade do estado
+  real.
+- **UI sem testes automatizados.** Os componentes foram verificados por lint,
+  typecheck, build e smoke test (`GET /` e `POST /api/format`), mas ainda não há testes
+  de componente nem E2E; a cobertura de fluxo no navegador fica para a etapa 21.
 - **README padrão.**
 - **API parcial.** `POST /api/format` existe; `POST /api/spellcheck` ainda não.
 - **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
@@ -223,20 +253,22 @@ commitadas separadamente.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 15
+### 8.1 Iniciar a etapa 16
 
-Etapa 15 — `feat(ui): build two-pane formatting workbench`:
+Etapa 16 — `feat(ui): add preview, html source and copy actions`:
 
-- Substituir `src/app/page.tsx` (template do create-next-app) pelo workbench real.
-- Layout responsivo de dois painéis: entrada (textarea, contagem de caracteres/linhas,
-  botão limpar, seletor de preset `generico`/`citologia`) e resultado.
-- Consumir `POST /api/format` com estados de carregamento, erro, fallback e `aria-live`.
-- Interface em pt-BR, acessível, com foco visível e sem overflow horizontal no mobile.
-- “Carregar exemplo” depende de `src/data/samples.ts` (etapa 17) e não deve ser
-  antecipado; abas, copiar/baixar e aviso de privacidade ficam nas etapas 16 e 17.
+- Adicionar abas “Pré-visualização” e “HTML” no painel de resultado.
+- Exibir o fragmento exato em modo somente leitura na aba HTML, mantendo o escape e
+  apenas `<b>`, `<i>` e `<br>`.
+- Adicionar botões de copiar e baixar o fragmento, com feedback acessível (`aria-live`)
+  e sem registrar o conteúdo em logs.
+- Preservar os estados de carregamento, erro, fallback e o reset do resultado ao
+  editar texto ou preset.
+- “Carregar exemplo” e aviso de privacidade continuam na etapa 17; ortografia na 19;
+  testes E2E na 21. Não antecipar.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 16 antes de concluir e
-registrar a etapa 15.
+Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 17 antes de concluir e
+registrar a etapa 16.
 
 ## 9. Comandos de verificação
 
@@ -272,8 +304,9 @@ docs/COMMITS.md            política e sequência de commits
 docs/DEPLOY.md             guia de deploy
 docs/RULES.md              regras de formatação
 docs/adr/                  decisões arquiteturais
-src/app/                   App Router; página ainda padrão
+src/app/                   App Router; workbench pt-BR
 src/app/api/format/        POST /api/format
+src/components/            workbench, editor e preview do laudo
 src/config/report-rules.ts presets e regras
 src/lib/env.ts             ambiente
 src/lib/errors.ts          AppError
