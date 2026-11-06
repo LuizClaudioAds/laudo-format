@@ -21,7 +21,7 @@ Legenda:
 
 - [x] Tipos de bloco, presets e estruturas de relatório.
 - [x] Segmentação com normalização NFC/CRLF, IDs e offsets estáveis.
-- [x] Limites de 20.000 caracteres, 500 linhas e 64 KiB definidos (ainda não aplicados na borda HTTP).
+- [x] Limites de 20.000 caracteres, 500 linhas e 64 KiB definidos e aplicados na borda HTTP.
 - [x] Presets `generico` e `citologia`.
 - [x] Renderizador determinístico com apenas `<b>`, `<i>` e `<br>`.
 - [x] Escape de HTML e preservação de conteúdo.
@@ -47,12 +47,12 @@ Legenda:
 
 - [x] `src/lib/format/pipeline.ts` unindo segmentação, classificação e renderização.
 - [x] `POST /api/format` com validação de body, preset, erros JSON e fallback 200.
-- [ ] Aplicação dos limites de 20.000 caracteres, 500 linhas e 64 KiB na rota.
+- [x] Aplicação dos limites de 20.000 caracteres, 500 linhas e 64 KiB na rota.
 - [x] Metadados de resposta (`provider`, `model`, `usedFallback`, `durationMs`, contagens).
-- [ ] Rate limit por IP hasheado com Upstash e fallback em memória.
-- [ ] `Retry-After` em respostas 429.
+- [x] Rate limit por IP hasheado com Upstash e fallback em memória.
+- [x] `Retry-After` em respostas 429.
 - [ ] `POST /api/spellcheck` com sugestões opt-in.
-- [ ] Helpers HTTP/erros reutilizáveis.
+- [x] Helpers HTTP/erros reutilizáveis.
 - [x] `maxDuration = 30` na rota de formatação.
 
 ## 5. Interface
@@ -71,10 +71,10 @@ Legenda:
 
 ## 6. Testes e qualidade
 
-- [x] 40 testes unitários passando.
+- [x] 64 testes unitários passando.
 - [x] Cobertura global acima de 80% em statements/linhas e 75% em branches.
 - [ ] Testes de integração das rotas com provider mock.
-- [ ] Testes de limite de payload, erros, rate limit e fallback.
+- [ ] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
 - [ ] Testes E2E de formatação, cópia, privacidade e mobile.
 - [ ] Instalar browsers do Playwright no ambiente de CI.
 - [ ] Manter lint, typecheck, testes e build verdes em cada commit.
@@ -105,7 +105,7 @@ Legenda:
 | 11  | `feat(ai): add provider factory and structured output schema`      | concluído (`14e7066`) |
 | 12  | `feat(ai): add portuguese classification prompt and repair logic`  | concluído (`79bdc5a`) |
 | 13  | `feat(api): implement format endpoint with fallback handling`      | concluído (`a431fa1`) |
-| 14  | `feat(api): add size limits, rate limiting and request metadata`   | pendente              |
+| 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`) |
 | 15  | `feat(ui): build two-pane formatting workbench`                    | pendente              |
 | 16  | `feat(ui): add preview, html source and copy actions`              | pendente              |
 | 17  | `feat(ui): add sample reports and privacy notice`                  | pendente              |

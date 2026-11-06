@@ -2,7 +2,7 @@
 
 Atualizado em: 2026-11-05
 Branch: `main`
-Último commit de código: `a431fa1 feat(api): implement format endpoint with fallback handling`
+Último commit de código: `e749a4a feat(api): add size limits, rate limiting and request metadata`
 Remoto: `origin` configurado; push de `main` **pendente** por falha de autenticação HTTPS
 nesta sessão. Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais.
 
@@ -22,8 +22,8 @@ nesta sessão. Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais.
 
 | Comando                          | Resultado                                                                      |
 | -------------------------------- | ------------------------------------------------------------------------------ |
-| `npm.cmd run test:unit -- --run` | 5 arquivos, **40 testes passando**                                             |
-| `npm.cmd run test:coverage`      | passou nos thresholds; 89,11% statements, 84,89% branches, 88,88% lines        |
+| `npm.cmd run test:unit -- --run` | 7 arquivos, **64 testes passando**                                             |
+| `npm.cmd run test:coverage`      | passou nos thresholds; 90,61% statements, 85,77% branches, 90,66% lines        |
 | `npm.cmd run lint`               | passou                                                                         |
 | `npm.cmd run typecheck`          | passou                                                                         |
 | `npm.cmd run build`              | passou; `/` e `/_not-found` estáticas; `/api/format` dinâmica                  |
@@ -34,22 +34,27 @@ Avisos não bloqueantes do Vitest:
 - `vitest.config.ts` usa sintaxe ESM carregada como CJS.
 - Plugin `vite-tsconfig-paths` é sugerido substituir por `resolve.tsconfigPaths`.
 
+Smoke test manual com `next start` na porta 3100 (após `npm.cmd run build`):
+
+- corpo de 80.000 bytes → `413 INPUT_TOO_LARGE` (“corpo da requisição … 65.536 bytes”);
+- requisição válida → `200` com `X-RateLimit-Remaining`, `x-request-id` e `Cache-Control: no-store`;
+- 11ª requisição no minuto → `429 RATE_LIMITED` com `Retry-After: 60`.
+
 ## 2. Etapa atual
 
-As etapas 12 (`feat(ai): add portuguese classification prompt and repair logic`) e 13
-(`feat(api): implement format endpoint with fallback handling`) estão **implementadas,
-verificadas e commitadas** em `79bdc5a` e `a431fa1`. A etapa 14 ainda não começou.
+A etapa 14 (`feat(api): add size limits, rate limiting and request metadata`) está
+**implementada, verificada e commitada** em `e749a4a`. A etapa 15 ainda não começou.
 
-O pipeline determinístico e o `POST /api/format` já existem. O que falta na camada de
-API é aplicar o limite de 64 KiB na borda, adicionar rate limit, helpers HTTP
-reutilizáveis e o endpoint de ortografia. A UI real continua pendente.
+O `POST /api/format` já aplica rate limit por IP hasheado (10/min), limite de 64 KiB no
+corpo da requisição, helpers HTTP reutilizáveis e os headers `X-RateLimit-*` e
+`Retry-After`. Ainda faltam o endpoint de ortografia e a UI real.
 
 ## 3. Implementado e commitado
 
 Commits existentes:
 
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
-`ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`.
+`ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`.
 
 Arquivos implementados:
 
@@ -69,6 +74,12 @@ Arquivos implementados:
 - `src/lib/env.ts`: leitura de `AI_PROVIDER`, `AI_MODEL`, chave Google, Upstash,
   `IP_HASH_SALT`, limites e `NEXT_PUBLIC_APP_URL`; `isMockMode()` exige
   `AI_PROVIDER=mock` **e** `ALLOW_MOCK_AI=true`.
+- `src/lib/http.ts`: `createRequestId`, `jsonResponse`, `errorResponse`,
+  `appErrorResponse` (fallback genérico sem vazar detalhes internos) e `readJsonBody`,
+  que verifica `content-length` e cancela a leitura ao ultrapassar o teto de bytes.
+- `src/lib/rate-limit.ts`: `checkRateLimit` com Upstash (`Ratelimit.fixedWindow`) e
+  fallback em memória por instância; chave `kind:sha256(IP + IP_HASH_SALT)`;
+  `getClientIp`, `hashClientIp` e `rateLimitHeaders`.
 - `src/lib/ai/provider.ts`: factory de modelo e metadados do provider.
 - `src/lib/ai/schema.ts`: schema Zod restrito a blocos, IDs, spans e avisos.
 - `src/lib/ai/prompt.ts`: prompt de sistema de classificação em pt-BR, builder do
@@ -83,9 +94,11 @@ Arquivos implementados:
 - `src/lib/format/pipeline.ts`: `formatReport()` une `segmentInput` → `classifyReport` →
   `renderReport`, mede `durationMs` e preenche `meta` com provider, modelo,
   `usedFallback`, caracteres, linhas e blocos.
-- `src/app/api/format/route.ts`: `POST` com `maxDuration = 30`, `Content-Type` JSON,
-  validação de `{ text, preset }`, `Cache-Control: no-store`, header `x-request-id`,
-  fallback 200 e mapeamento de `AppError` para `{ error: { code, message, requestId } }`.
+- `src/app/api/format/route.ts`: `POST` com `maxDuration = 30`, rate limit de 10/min
+  antes do corpo, `Content-Type` JSON, corpo limitado a 64 KiB via `readJsonBody`,
+  validação de `{ text, preset }`, headers `X-RateLimit-*` em todas as respostas,
+  `Retry-After` no `429`, `Cache-Control: no-store`, header `x-request-id`, fallback 200
+  e mapeamento de `AppError` para `{ error: { code, message, requestId } }`.
   O export `runtime` foi omitido porque `cacheComponents` está ativo; o runtime Node.js
   é o padrão e não aceita esse segment config.
 - `tests/fixtures/reports.ts`: laudos fictícios.
@@ -96,6 +109,13 @@ Arquivos implementados:
 - `tests/unit/pipeline.test.ts`: 3 testes com `AI_PROVIDER=mock` e
   `ALLOW_MOCK_AI=true` cobrindo preservação de conteúdo, tags permitidas, espaçamento,
   metadados e propagação de erro de entrada.
+- `tests/unit/http.test.ts`: 13 testes de envelopes JSON, headers, conversão de
+  `AppError`, fallback 500 sem vazar detalhes e limites de corpo (`content-length`,
+  leitura em stream, JSON inválido e corpo ausente).
+- `tests/unit/rate-limit.test.ts`: 11 testes de IP, hash opaco, headers, janela em
+  memória (limite, isolamento por IP e por tipo), mapeamento do Upstash (liberada,
+  negada) e fallback em memória quando o Upstash falha; os mocks de `@upstash/*` ficam
+  no próprio arquivo de teste.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
   Prettier, commitlint, Husky e lint-staged.
 - `SPEC.md` (movido de `docs/SPEC.md` nesta sessão), `docs/RULES.md`,
@@ -104,21 +124,17 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-Após os commits `79bdc5a` (etapa 12) e `a431fa1` (etapa 13), não há arquivos de código
-pendentes. A documentação de continuidade é commitada separadamente.
+Após os commits `79bdc5a` (etapa 12), `a431fa1` (etapa 13) e `e749a4a` (etapa 14), não
+há arquivos de código pendentes. Atualizações de documentação de continuidade são
+commitadas separadamente.
 
 ## 5. Ainda não implementado
 
 - `src/app/api/spellcheck/route.ts`.
-- `src/lib/http.ts` e helpers de erro/resposta reutilizáveis.
-- `src/lib/rate-limit.ts` com Upstash e fallback em memória.
-- Aplicação real do limite de 64 KiB na rota.
-- Headers `Retry-After` e `X-RateLimit-*`; `/api/format` já retorna `x-request-id` e
-  `Cache-Control: no-store`.
 - `src/data/samples.ts`.
 - `src/components/**` e a UI real; `src/app/page.tsx` ainda é o template padrão.
 - Painel de sugestões ortográficas.
-- Testes de integração das rotas.
+- Testes de integração das rotas (etapa 20).
 - Testes E2E.
 - `.github/workflows/ci.yml`.
 - README final; o atual é o template do create-next-app.
@@ -158,12 +174,19 @@ pendentes. A documentação de continuidade é commitada separadamente.
 14. **Sem `runtime` exportado.** Como `cacheComponents` está ativo no Next.js 16.4.5, a
     rota não exporta `runtime = "nodejs"`; o runtime Node.js é o padrão e o segment
     config não é suportado nesse modo.
+15. **Rate limit fail-open.** Sem Upstash ou quando o Upstash falha, a requisição cai
+    para o contador em memória por instância; indisponibilidade do rate limiter nunca
+    gera 5xx.
+16. **Corpo lido em stream com teto.** `readJsonBody` rejeita `content-length` acima do
+    teto e cancela a leitura assim que ultrapassa 64 KiB, sem reter payload maior em
+    memória e sem logar conteúdo algum.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push pendente.** `git push -u origin main` falhou com “Invalid username or token”.
-  Os commits `79bdc5a`, `a431fa1` e `c23c7eb` estão locais. É necessário configurar uma
-  credencial válida do GitHub (Git Credential Manager ou equivalente) e repetir o push.
+  Todos os commits estão locais, incluindo `79bdc5a`, `a431fa1`, `c23c7eb`, `724b2f7` e
+  `e749a4a`. É necessário configurar uma credencial válida do GitHub (Git Credential
+  Manager ou equivalente) e repetir o push.
 - **Documentação à frente do código.** `docs/API.md` e `docs/ARCHITECTURE.md`
   descrevem `/api/spellcheck`, rate limit e componentes de UI que ainda não existem.
   Use este arquivo como fonte de verdade do estado real.
@@ -171,12 +194,11 @@ pendentes. A documentação de continuidade é commitada separadamente.
   create-next-app.
 - **README padrão.**
 - **API parcial.** `POST /api/format` existe; `POST /api/spellcheck` ainda não.
-- **Sem rate limit.** O limite de 64 KiB está definido em `segment.ts`, mas não é
-  aplicado na borda HTTP.
-- **Headers parciais.** A rota já retorna `Cache-Control: no-store` e `x-request-id`;
-  `Retry-After` e `X-RateLimit-*` dependem do rate limit da etapa 14.
-- **Rota sem teste de integração.** A etapa 13 cobre o pipeline com provider mock; a
-  suíte de rotas (limites, erros, rate limit e fallback HTTP) fica para a etapa 20.
+- **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
+  rate limit com testes unitários; a suíte de rotas em nível de HTTP (limites, erros,
+  rate limit e fallback) fica para a etapa 20.
+- **Rate limit em memória sem Upstash.** Em produção com várias instâncias o limite só
+  é consistente com Upstash configurado (ADR 0004).
 - **Cobertura da camada de IA.** `src/lib/ai` ainda tem cobertura individual baixa; os
   thresholds globais passam por causa do domínio. Testes de integração/mock são
   necessários na etapa 20.
@@ -199,23 +221,20 @@ pendentes. A documentação de continuidade é commitada separadamente.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 14
+### 8.1 Iniciar a etapa 15
 
-Etapa 14 — `feat(api): add size limits, rate limiting and request metadata`:
+Etapa 15 — `feat(ui): build two-pane formatting workbench`:
 
-- Criar `src/lib/http.ts` com helpers de resposta JSON, erro consistente, `requestId`,
-  `Cache-Control: no-store` e `Retry-After`.
-- Criar `src/lib/rate-limit.ts` com Upstash quando configurado e fallback em memória
-  por instância; chave `kind + hash(IP + IP_HASH_SALT)`.
-- Aplicar o limite de 64 KiB na leitura do body de `/api/format` sem logar conteúdo.
-- Integrar rate limit de 10 req/min na rota, retornando 429 com `Retry-After` e
-  `X-RateLimit-*`.
-- Manter o fallback de IA como HTTP 200 com `usedFallback: true`.
-- Testes de limite, erro e rate limit podem entrar na etapa 20, mas a implementação
-  deve passar em lint, typecheck, testes e build.
+- Substituir `src/app/page.tsx` (template do create-next-app) pelo workbench real.
+- Layout responsivo de dois painéis: entrada (textarea, contagem de caracteres/linhas,
+  botão limpar, seletor de preset `generico`/`citologia`) e resultado.
+- Consumir `POST /api/format` com estados de carregamento, erro, fallback e `aria-live`.
+- Interface em pt-BR, acessível, com foco visível e sem overflow horizontal no mobile.
+- “Carregar exemplo” depende de `src/data/samples.ts` (etapa 17) e não deve ser
+  antecipado; abas, copiar/baixar e aviso de privacidade ficam nas etapas 16 e 17.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 15 antes de concluir e
-registrar a etapa 14.
+Entregar apenas essa etapa neste ciclo. Não iniciar a etapa 16 antes de concluir e
+registrar a etapa 15.
 
 ## 9. Comandos de verificação
 
@@ -256,10 +275,12 @@ src/app/api/format/        POST /api/format
 src/config/report-rules.ts presets e regras
 src/lib/env.ts             ambiente
 src/lib/errors.ts          AppError
+src/lib/http.ts            helpers JSON, erro e limite de corpo
+src/lib/rate-limit.ts      rate limit Upstash + memória
 src/lib/text.ts            helpers de texto
 src/lib/ai/                provider, schema, prompt, classify
 src/lib/format/            domínio, pipeline, heurística, render, validação, invariantes
-tests/unit/                testes unitários (inclui pipeline com provider mock)
+tests/unit/                testes unitários (pipeline, http e rate limit com mocks)
 tests/fixtures/            laudos fictícios
 ```
 

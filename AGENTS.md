@@ -118,11 +118,11 @@ npm.cmd run test:e2e
 
 O estado detalhado, arquivos implementados e a próxima tarefa exata estão em `PROGRESS.md`. Resumo:
 
-- Etapas 1–13 commitadas.
-- Etapa 14 (limites de borda, rate limit e helpers HTTP) ainda não começou.
-- Ainda não existem `/api/spellcheck`, UI real, rate limit, ortografia, testes de API/E2E, CI, README final ou configuração de deploy.
+- Etapas 1–14 commitadas.
+- Etapa 14 (limites de borda, rate limit e helpers HTTP) foi concluída em `e749a4a`.
+- Ainda não existem `/api/spellcheck`, UI real, ortografia, testes de API/E2E, CI, README final ou configuração de deploy.
 
-Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 14; não comece a etapa 15 antes de concluí-la.
+Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 15; não comece a etapa 16 antes de concluí-la.
 
 ## 7. Quirks conhecidos
 
@@ -131,6 +131,7 @@ Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tare
 - `core.autocrlf=true` no Windows, mas `.gitattributes` força LF; commits devem manter LF.
 - O `npm.ps1` é bloqueado pela política do PowerShell; use `npm.cmd`.
 - Sem `GOOGLE_GENERATIVE_AI_API_KEY`, o modo esperado é fallback heurístico (HTTP 200).
-- O build atual passa; `POST /api/format` existe, mas `/api/spellcheck` e a UI real ainda não.
+- O build atual passa; `POST /api/format` existe com rate limit e limite de 64 KiB, mas `/api/spellcheck` e a UI real ainda não.
+- Sem Upstash, o rate limit usa memória por instância (comportamento esperado em dev).
 - Com `cacheComponents` ativo, não exportar `runtime` em Route Handlers; o runtime Node.js é o padrão.
 - `docs/API.md` e `docs/ARCHITECTURE.md` descrevem o alvo; confirme o que já existe em `PROGRESS.md`.
