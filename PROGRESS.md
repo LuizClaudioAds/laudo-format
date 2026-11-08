@@ -2,10 +2,10 @@
 
 Atualizado em: 2026-11-08
 Branch: `main`
-Último commit de código: `4e7db2f feat(api): add optional spelling suggestion endpoint`
-Commit anterior: `c0c73d1 docs: record stage 17 completion and next task`
-Remoto: `origin` configurado; `main` sincronizada com `origin/main` em 2026-11-08
-(push concluído). Os commits das etapas 1–18 estão publicados.
+Último commit de código: `f023240 feat(ui): add spelling suggestions panel with explicit apply`
+Commit anterior: `2b29f25 docs: translate readme to brazilian portuguese`
+Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `2b29f25`.
+Os commits das etapas 1–18 estão publicados; a etapa 19 está commitada localmente.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -23,8 +23,8 @@ Remoto: `origin` configurado; `main` sincronizada com `origin/main` em 2026-11-0
 
 | Comando                          | Resultado                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------- |
-| `npm.cmd run test:unit -- --run` | 9 arquivos, **79 testes passando**                                                 |
-| `npm.cmd run test:coverage`      | passou nos thresholds; 91,71% statements, 87,13% branches, 91,75% lines            |
+| `npm.cmd run test:unit -- --run` | 10 arquivos, **86 testes passando**                                                |
+| `npm.cmd run test:coverage`      | passou nos thresholds; 91,93% statements, 87,67% branches, 91,95% lines            |
 | `npm.cmd run lint`               | passou                                                                             |
 | `npm.cmd run typecheck`          | passou                                                                             |
 | `npm.cmd run format:check`       | passou                                                                             |
@@ -55,26 +55,32 @@ Smoke test da etapa 18 com `next start` na porta 3113 (`AI_PROVIDER=mock` e
 - corpo inválido → `400 INVALID_JSON` com o mesmo envelope de erro e headers de rate
   limit.
 
+Smoke test da etapa 19 com `next start` na porta 3114: `GET /` contém a seção
+“Sugestões ortográficas”, o botão “Sugerir correções” (desabilitado com o editor
+vazio) e a orientação de que nada é alterado sem clique em “Aplicar”. O aplicar e o
+ignorar foram cobertos por testes unitários do mapeamento de offsets; falta teste em
+navegador real (etapa 21).
+
 ## 2. Etapa atual
 
-A etapa 18 (`feat(api): add optional spelling suggestion endpoint`) está **implementada,
-verificada e commitada** em `4e7db2f`. Foram adicionados:
+A etapa 19 (`feat(ui): add spelling suggestions panel with explicit apply`) está
+**implementada, verificada e commitada** em `f023240`. Foram adicionados:
 
-- `src/lib/spell/suggest.ts`: reparo de sugestões contra o texto original, descartando
-  `lineId` inválido, offsets fora da linha ou não inteiros, `original` divergente,
-  trecho em branco, sugestão igual ao original, sobreposições e excesso de 20 sugestões.
-- `src/lib/ai/spellcheck.ts`: orquestração com `generateObject`, `temperature: 0`,
-  timeout de 20 s, `maxRetries: 1`, modo mock e fallback para `suggestions: []` com
-  aviso em pt-BR; valida a resposta e preenche `meta`.
-- `src/app/api/spellcheck/route.ts`: `POST` com `maxDuration = 30`, rate limit de 5/min
-  por IP hasheado, limite de 64 KiB via `readJsonBody`, headers `X-RateLimit-*`,
-  `Retry-After` no `429`, `Cache-Control: no-store` e o mesmo envelope de erro.
-- `tests/unit/spell.test.ts`: 11 testes de validação, limite de sugestões, modo mock,
-  falha do provider e propagação de entrada vazia.
+- `src/components/suggestions-panel.tsx`: painel com ação sob demanda “Sugerir
+  correções”, lista de original/sugestão/motivo, avisos, erro, estado vazio e botões
+  “Aplicar” e “Ignorar” com labels acessíveis e `aria-live`.
+- `src/components/format-workbench.tsx`: estado e fetch de `POST /api/spellcheck`,
+  `AbortController` próprio, type guard da resposta, descarte de sugestões quando o
+  texto muda, “Ignorar” sem tocar no texto e “Aplicar” que substitui o span e dispara
+  nova formatação.
+- `src/lib/spell/apply.ts`: `applySuggestion()` mapeia o `lineId` e os offsets das
+  linhas normalizadas de volta para o texto do editor, preserva CRLF, `\r`, espaços das
+  extremidades e acentos, e retorna `null` quando o trecho não coincide mais.
+- `tests/unit/apply.test.ts`: 7 testes de substituição, CRLF, quebra `\r`, linhas
+  vazias, original divergente, offsets inválidos e sugestão idêntica.
 
 O `POST /api/format` continua com rate limit de 10/min, limite de 64 KiB e os mesmos
-helpers HTTP. A UI ainda não consome a rota de ortografia; o painel com “Aplicar” e
-“Ignorar” é a etapa 19.
+helpers HTTP. A próxima tarefa é a etapa 20 (testes de integração das rotas).
 
 ## 3. Implementado e commitado
 
@@ -134,6 +140,16 @@ Arquivos implementados:
 - `tests/unit/spell.test.ts`: 11 testes de sugestões válidas, IDs e offsets inválidos,
   original divergente, sugestão idêntica, trecho em branco, sobreposição, limite de 20,
   modo mock, falha do provider e entrada vazia.
+- `src/lib/spell/apply.ts`: `applySuggestion()` localiza a linha pelo `lineId`, valida
+  o trecho original, remapeia offsets para a linha crua e preserva CRLF, `\r`, espaços
+  das extremidades e acentos; retorna `null` se o texto mudou.
+- `tests/unit/apply.test.ts`: 7 testes de aplicação, CRLF, `\r`, linhas vazias,
+  original divergente, offsets inválidos e sugestão idêntica.
+- `src/components/suggestions-panel.tsx`: painel de sugestões com “Sugerir correções”,
+  “Aplicar”, “Ignorar”, avisos, erro, estado vazio, `aria-live` e labels acessíveis.
+- `src/components/format-workbench.tsx`: passou a consumir `POST /api/spellcheck`,
+  validar o payload com type guard, limpar sugestões ao editar o texto e reformatar
+  após aplicar uma correção.
 - `src/lib/format/pipeline.ts`: `formatReport()` une `segmentInput` → `classifyReport` →
   `renderReport`, mede `durationMs` e preenche `meta` com provider, modelo,
   `usedFallback`, caracteres, linhas e blocos.
@@ -186,18 +202,16 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 18 foi commitada em `4e7db2f` com `src/lib/spell/suggest.ts`,
-`src/lib/ai/spellcheck.ts`, `src/app/api/spellcheck/route.ts` e
-`tests/unit/spell.test.ts`. As atualizações de continuidade (`ROADMAP.md`,
-`PROGRESS.md`, `AGENTS.md`, `docs/API.md` e `docs/ARCHITECTURE.md`) são commitadas
-separadamente.
+A etapa 19 foi commitada em `f023240` com `src/components/suggestions-panel.tsx`,
+`src/lib/spell/apply.ts`, `src/components/format-workbench.tsx` e
+`tests/unit/apply.test.ts`. As atualizações de continuidade (`ROADMAP.md`,
+`PROGRESS.md`, `AGENTS.md` e `README.md`) são commitadas separadamente.
 
-Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
-`3bc54e2`, `4e7db2f`) estão íntegros.
+Os commits das etapas 12–19 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+`3bc54e2`, `4e7db2f`, `f023240`) estão íntegros.
 
 ## 5. Ainda não implementado
 
-- Painel de sugestões ortográficas na UI, com “Aplicar” e “Ignorar” (etapa 19).
 - Testes de integração das rotas (etapa 20).
 - Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
 - `.github/workflows/ci.yml`.
@@ -265,27 +279,30 @@ Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
     Editar o texto ou limpar desfaz a seleção do exemplo. O aviso de privacidade pode
     ser dispensado apenas em memória; não se grava nem o texto nem a dispensa em
     `localStorage`/`sessionStorage`.
+21. **Ortografia explícita e mapeada.** O painel só busca sugestões sob demanda e nada
+    é aplicado automaticamente. “Ignorar” remove apenas da lista; “Aplicar” remapeia o
+    `lineId` e os offsets da linha normalizada para o texto cru do editor, valida que o
+    trecho ainda coincide e só então substitui e reformata. Se o texto mudou, a
+    sugestão é descartada com aviso, sem edição parcial. Nenhum texto ou sugestão vai
+    para storage ou log.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push concluído.** `git push -u origin main` publicou a branch em 2026-11-08
-  (`4e7db2f` e o commit de documentação). O remoto é
+- **Push concluído até a etapa 18.** `git push -u origin main` publicou a branch em
+  2026-11-08; o último commit publicado é `2b29f25`. O commit `f023240` da etapa 19
+  ainda não foi enviado. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
   o push em um terminal interativo e não deixe o comando pendurado em scripts.
-- **Documentação à frente do código.** `docs/ARCHITECTURE.md` ainda lista
-  `src/components/suggestions-panel.tsx`, que só existirá na etapa 19. O endpoint
-  `/api/spellcheck` já corresponde ao código. Use este arquivo como fonte de verdade do
-  estado real.
-- **UI sem testes automatizados.** Os componentes foram verificados por lint,
-  typecheck, build e smoke test (`GET /`, `POST /api/format`, aviso e samples no HTML),
-  mas ainda não há testes de componente nem E2E; copiar/baixar, dispensa do aviso e
-  carregamento de exemplo em navegador real ficam para a etapa 21.
+- **UI sem testes de componente/E2E.** O mapeamento de offsets do “Aplicar” tem testes
+  unitários e a página foi verificada por lint, typecheck, build e smoke test (`GET /`
+  com o painel de ortografia), mas copiar/baixar, dispensa do aviso, carregamento de
+  exemplo e o fluxo completo de aplicar/ignorar em navegador real ficam para a etapa 21.
 - **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
   isso é intencional para não usar storage.
 - **README em pt-BR, sem URL de demo publicada.**
-- **API completa, UI de ortografia pendente.** `POST /api/format` e
-  `POST /api/spellcheck` existem; o painel da etapa 19 é que ainda não consome as
-  sugestões.
+- **Ortografia implementada, sem teste de navegador.** `POST /api/spellcheck` e o
+  painel com “Aplicar”/“Ignorar” existem; falta cobrir o fluxo em E2E e validar
+  acessibilidade/mobile em navegador real (etapa 21).
 - **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
   rate limit com testes unitários; a suíte de rotas em nível de HTTP (limites, erros,
   rate limit e fallback) fica para a etapa 20.
@@ -313,23 +330,26 @@ Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 19
+### 8.1 Iniciar a etapa 20
 
-Etapa 19 — `feat(ui): add spelling suggestions panel with explicit apply`:
+Etapa 20 — `test(api): cover format and spellcheck routes with mock provider`:
 
-- Criar `src/components/suggestions-panel.tsx` e integrá-lo ao `FormatWorkbench` com
-  ação sob demanda “Sugerir correções” que chama `POST /api/spellcheck` com o texto
-  atual do editor.
-- Exibir cada sugestão com trecho original, sugestão e motivo; “Ignorar” remove apenas
-  da lista, sem tocar no texto; “Aplicar” substitui o span exato no editor e solicita
-  nova formatação.
-- Mapear os offsets das linhas normalizadas de volta para o texto do editor antes de
-  aplicar, preservando espaços, acentos e quebras originais; descartar a sugestão se o
-  trecho já não coincidir.
-- Estados de carregamento, erro e lista vazia; `aria-live`, foco visível, labels em
-  pt-BR e layout empilhado no mobile. Nenhum texto ou sugestão em storage/log.
+- Criar `tests/integration/routes.test.ts` e importar os handlers `POST` de
+  `src/app/api/format/route.ts` e `src/app/api/spellcheck/route.ts` com
+  `AI_PROVIDER=mock`, `ALLOW_MOCK_AI=true` e `vi.resetModules()`.
+- Cobrir `/api/format`: 200 com HTML, `usedFallback: true`, `Cache-Control: no-store`,
+  `x-request-id` e headers de rate limit; JSON inválido, corpo não objeto, `text`
+  ausente, `EMPTY_INPUT`, `INPUT_TOO_LARGE`, `TOO_MANY_LINES`, `415` e `429` com
+  `Retry-After`.
+- Cobrir `/api/spellcheck`: 200 com `suggestions: []` e warning de mock; mesmos erros
+  de corpo e `429` após 5 requisições; fallback 200 quando a chave Google estiver
+  ausente.
+- Usar `Request` nativo com `x-forwarded-for` único por caso para isolar o rate limit
+  em memória e `vi.stubEnv` para o provider. Nenhum texto de laudo deve aparecer em
+  logs de teste.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar os testes de rota/E2E (etapas 20 e 21) antes de concluir e registrar a etapa 19.
+Entregar apenas essa etapa neste ciclo. Não iniciar os testes E2E (etapa 21) antes de
+concluir e registrar a etapa 20.
 
 ## 9. Comandos de verificação
 
@@ -368,7 +388,7 @@ docs/adr/                  decisões arquiteturais
 src/app/                   App Router; workbench pt-BR
 src/app/api/format/        POST /api/format
 src/app/api/spellcheck/    POST /api/spellcheck
-src/components/            workbench, editor, preview, aviso e aba HTML
+src/components/            workbench, editor, preview, ortografia, aviso e aba HTML
 src/config/report-rules.ts presets e regras
 src/data/samples.ts        laudos fictícios do seletor de exemplo
 src/lib/env.ts             ambiente
@@ -377,9 +397,9 @@ src/lib/http.ts            helpers JSON, erro e limite de corpo
 src/lib/rate-limit.ts      rate limit Upstash + memória
 src/lib/text.ts            helpers de texto
 src/lib/ai/                provider, schema, prompt, classify, spellcheck
-src/lib/spell/             validação de sugestões ortográficas
+src/lib/spell/             validação e aplicação de sugestões ortográficas
 src/lib/format/            domínio, pipeline, heurística, render, validação, invariantes
-tests/unit/                testes unitários (pipeline, spell, http e rate limit com mocks)
+tests/unit/                testes unitários (pipeline, spell, apply, http e rate limit)
 tests/fixtures/            laudos fictícios
 ```
 

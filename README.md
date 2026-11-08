@@ -103,9 +103,8 @@ Abra <http://localhost:3000>.
 3. Clique em **Formatar laudo**.
 4. Confira a pré-visualização e a aba **HTML**.
 5. Copie o fragmento ou baixe o arquivo `.html`.
-
-O painel de sugestões ortográficas na interface ainda está em desenvolvimento. O
-endpoint `POST /api/spellcheck` já existe e devolve sugestões sem alterar o texto.
+6. Opcionalmente, clique em **Sugerir correções**, revise cada sugestão e use
+   **Aplicar** ou **Ignorar**. Nada é alterado sem a sua confirmação.
 
 ## Arquitetura
 
@@ -124,10 +123,10 @@ Módulos principais:
 - `src/lib/format/`: domínio puro, segmentação, heurísticas, validação, renderização
   e invariantes.
 - `src/lib/ai/`: provider, prompts, schemas e orquestração da IA.
-- `src/lib/spell/`: validação das sugestões ortográficas.
+- `src/lib/spell/`: validação e aplicação das sugestões ortográficas.
 - `src/app/api/`: rotas `POST /api/format` e `POST /api/spellcheck`.
-- `src/components/`: workbench, editor, pré-visualização, aviso de privacidade e saída
-  HTML.
+- `src/components/`: workbench, editor, pré-visualização, painel de ortografia, aviso
+  de privacidade e saída HTML.
 - `src/config/report-rules.ts`: presets e regras centralizadas.
 
 ## API
