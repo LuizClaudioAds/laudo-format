@@ -56,6 +56,7 @@ POST /api/spellcheck { text } ──► IA ──► sugestões validadas
 | `src/lib/ai/schema.ts`                 | Schemas Zod da IA                        |
 | `src/lib/ai/prompt.ts`                 | Prompts de classificação e ortografia    |
 | `src/lib/ai/classify.ts`               | Chamada `generateObject` e tratamento    |
+| `src/lib/ai/spellcheck.ts`             | Orquestração das sugestões ortográficas  |
 | `src/lib/spell/suggest.ts`             | Validação de sugestões ortográficas      |
 | `src/lib/rate-limit.ts`                | Rate limit Upstash + fallback em memória |
 | `src/lib/env.ts`                       | Leitura centralizada de variáveis        |

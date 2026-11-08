@@ -51,7 +51,7 @@ Legenda:
 - [x] Metadados de resposta (`provider`, `model`, `usedFallback`, `durationMs`, contagens).
 - [x] Rate limit por IP hasheado com Upstash e fallback em memória.
 - [x] `Retry-After` em respostas 429.
-- [ ] `POST /api/spellcheck` com sugestões opt-in.
+- [x] `POST /api/spellcheck` com sugestões opt-in.
 - [x] Helpers HTTP/erros reutilizáveis.
 - [x] `maxDuration = 30` na rota de formatação.
 
@@ -71,7 +71,7 @@ Legenda:
 
 ## 6. Testes e qualidade
 
-- [x] 68 testes unitários passando.
+- [x] 79 testes unitários passando.
 - [x] Cobertura global acima de 80% em statements/linhas e 75% em branches.
 - [ ] Testes de integração das rotas com provider mock.
 - [ ] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
@@ -109,7 +109,7 @@ Legenda:
 | 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`) |
 | 16  | `feat(ui): add preview, html source and copy actions`              | concluído (`7232103`) |
 | 17  | `feat(ui): add sample reports and privacy notice`                  | concluído (`3bc54e2`) |
-| 18  | `feat(api): add optional spelling suggestion endpoint`             | pendente              |
+| 18  | `feat(api): add optional spelling suggestion endpoint`             | concluído (`4e7db2f`) |
 | 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | pendente              |
 | 20  | `test(api): cover format and spellcheck routes with mock provider` | pendente              |
 | 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | pendente              |

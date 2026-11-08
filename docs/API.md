@@ -111,12 +111,12 @@ Sugere correções ortográficas sem alterar o texto.
 {
   "suggestions": [
     {
-      "lineId": 3,
-      "start": 24,
-      "end": 31,
-      "original": "citologia",
-      "suggestion": "citologia",
-      "reason": "Exemplo",
+      "lineId": 1,
+      "start": 16,
+      "end": 22,
+      "original": "Gracas",
+      "suggestion": "Graças",
+      "reason": "Acentuação",
       "confidence": 0.9
     }
   ],
@@ -147,8 +147,8 @@ retorna `suggestions: []` e um warning, com status 200.
 
 ### Erros
 
-Os mesmos erros do `/api/format`, exceto limites de linhas e com rate limit de
-5 requisições por minuto.
+Os mesmos erros e limites do `/api/format`, com rate limit de 5 requisições por
+minuto.
 
 ## Rate limit
 
