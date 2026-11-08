@@ -201,7 +201,8 @@ Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 - Testes de integração das rotas (etapa 20).
 - Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
 - `.github/workflows/ci.yml`.
-- README final; o atual é o template do create-next-app.
+- URL de demo pública no README; o README em pt-BR já cobre setup, arquitetura e
+  privacidade.
 - Configuração da Vercel e headers de segurança no `next.config.ts`.
 
 ## 6. Decisões técnicas tomadas
@@ -281,7 +282,7 @@ Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
   carregamento de exemplo em navegador real ficam para a etapa 21.
 - **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
   isso é intencional para não usar storage.
-- **README padrão.**
+- **README em pt-BR, sem URL de demo publicada.**
 - **API completa, UI de ortografia pendente.** `POST /api/format` e
   `POST /api/spellcheck` existem; o painel da etapa 19 é que ainda não consome as
   sugestões.

@@ -81,7 +81,7 @@ Legenda:
 
 ## 7. Documentação e publicação
 
-- [ ] README final com demo, setup, arquitetura e privacidade.
+- [ ] README final com URL de demo, setup, arquitetura e privacidade.
 - [ ] CI com lint, typecheck, testes, build e E2E.
 - [ ] Configuração de deploy na Vercel e headers de segurança.
 - [ ] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.

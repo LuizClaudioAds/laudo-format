@@ -120,7 +120,7 @@ O estado detalhado, arquivos implementados e a próxima tarefa exata estão em `
 
 - Etapas 1–18 commitadas.
 - Etapa 17 (samples fictícios, seletor de exemplo e aviso de privacidade) foi concluída em `3bc54e2`.
-- A etapa 18 adicionou `/api/spellcheck`, validação de sugestões e testes unitários; o painel de ortografia da UI, testes de rota/E2E, CI, README final e configuração de deploy ainda não existem.
+- A etapa 18 adicionou `/api/spellcheck`, validação de sugestões e testes unitários; o painel de ortografia da UI, testes de rota/E2E, CI, README final com URL de demo e configuração de deploy ainda não existem.
 
 Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 19; não comece a etapa 20 antes de concluí-la.
 
