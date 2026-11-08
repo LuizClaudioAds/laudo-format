@@ -4,8 +4,8 @@ Atualizado em: 2026-11-08
 Branch: `main`
 Último commit de código: `4e7db2f feat(api): add optional spelling suggestion endpoint`
 Commit anterior: `c0c73d1 docs: record stage 17 completion and next task`
-Remoto: `origin` configurado; push de `main` **pendente** (a autenticação HTTPS falha ou
-trava aguardando credencial). Todos os commits das etapas 1–18 estão locais.
+Remoto: `origin` configurado; `main` sincronizada com `origin/main` em 2026-11-08
+(push concluído). Os commits das etapas 1–18 estão publicados.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -267,12 +267,10 @@ Os commits das etapas 12–18 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push pendente.** `git push -u origin main` já falhou com “Invalid username or token”
-  e também ficou travado aguardando credencial interativa (timeout de 5 min). Não há
-  token em variáveis de ambiente nem credencial GitHub no Windows Credential Manager.
-  Todos os commits das etapas 1–18 estão locais (`7fc06f5` até `4e7db2f`). Configure
-  uma credencial válida do GitHub em um terminal interativo e repita o push; não deixar
-  o comando pendurado em scripts.
+- **Push concluído.** `git push -u origin main` publicou a branch em 2026-11-08
+  (`4e7db2f` e o commit de documentação). O remoto é
+  `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
+  o push em um terminal interativo e não deixe o comando pendurado em scripts.
 - **Documentação à frente do código.** `docs/ARCHITECTURE.md` ainda lista
   `src/components/suggestions-panel.tsx`, que só existirá na etapa 19. O endpoint
   `/api/spellcheck` já corresponde ao código. Use este arquivo como fonte de verdade do

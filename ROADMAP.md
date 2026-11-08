@@ -86,7 +86,7 @@ Legenda:
 - [ ] Configuração de deploy na Vercel e headers de segurança.
 - [ ] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.
 - [x] Verificação final antes do push.
-- [ ] `git push -u origin main` (pendente: autenticação HTTPS inválida).
+- [x] `git push -u origin main` (concluído em 2026-11-08).
 
 ## Sequência de commits planejada
 
