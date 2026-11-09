@@ -118,11 +118,11 @@ npm.cmd run test:e2e
 
 O estado detalhado, arquivos implementados e a próxima tarefa exata estão em `PROGRESS.md`. Resumo:
 
-- Etapas 1–19 commitadas.
+- Etapas 1–20 commitadas.
 - Etapa 17 (samples fictícios, seletor de exemplo e aviso de privacidade) foi concluída em `3bc54e2`.
-- A etapa 18 adicionou `/api/spellcheck`; a etapa 19 adicionou o painel de ortografia com “Aplicar” e “Ignorar”. Testes de rota/E2E, CI, README final com URL de demo e configuração de deploy ainda não existem.
+- A etapa 18 adicionou `/api/spellcheck`; a etapa 19 adicionou o painel de ortografia com “Aplicar” e “Ignorar”; a etapa 20 adicionou testes de integração das rotas. Testes E2E, CI, README final com URL de demo e configuração de deploy ainda não existem.
 
-Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 20; não comece a etapa 21 antes de concluí-la.
+Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tarefa é a etapa 21; não comece a etapa 22 antes de concluí-la.
 
 ## 7. Quirks conhecidos
 
@@ -131,7 +131,7 @@ Ao retomar, siga a “Próxima tarefa exata” de `PROGRESS.md`. A próxima tare
 - `core.autocrlf=true` no Windows, mas `.gitattributes` força LF; commits devem manter LF.
 - O `npm.ps1` é bloqueado pela política do PowerShell; use `npm.cmd`.
 - Sem `GOOGLE_GENERATIVE_AI_API_KEY`, o modo esperado é fallback heurístico (HTTP 200).
-- O build atual passa; `POST /api/format` e `POST /api/spellcheck` existem com rate limit e limite de 64 KiB e a UI consome as duas rotas, com abas de preview/HTML, copiar/baixar, samples, aviso de privacidade e painel de ortografia com “Aplicar” e “Ignorar”. Testes de rota/E2E ainda não existem.
+- O build atual passa; `POST /api/format` e `POST /api/spellcheck` existem com rate limit e limite de 64 KiB e a UI consome as duas rotas, com abas de preview/HTML, copiar/baixar, samples, aviso de privacidade e painel de ortografia com “Aplicar” e “Ignorar”. Os handlers das duas rotas têm testes de integração; testes E2E ainda não existem.
 - Sem Upstash, o rate limit usa memória por instância (comportamento esperado em dev).
 - Com `cacheComponents` ativo, não exportar `runtime` em Route Handlers; o runtime Node.js é o padrão.
 - `docs/API.md` e `docs/ARCHITECTURE.md` descrevem o alvo; confirme o que já existe em `PROGRESS.md`.

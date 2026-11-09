@@ -2,10 +2,11 @@
 
 Atualizado em: 2026-11-08
 Branch: `main`
-Último commit de código: `f023240 feat(ui): add spelling suggestions panel with explicit apply`
-Commit anterior: `2b29f25 docs: translate readme to brazilian portuguese`
+Último commit de código: `1151218 test(api): cover format and spellcheck routes with mock provider`
+Commit anterior: `f023240 feat(ui): add spelling suggestions panel with explicit apply`
 Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `2b29f25`.
-Os commits das etapas 1–18 estão publicados; a etapa 19 está commitada localmente.
+Os commits das etapas 1–18 estão publicados; as etapas 19 e 20 estão commitadas
+localmente e o push será feito nesta sessão.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -23,8 +24,8 @@ Os commits das etapas 1–18 estão publicados; a etapa 19 está commitada local
 
 | Comando                          | Resultado                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------- |
-| `npm.cmd run test:unit -- --run` | 10 arquivos, **86 testes passando**                                                |
-| `npm.cmd run test:coverage`      | passou nos thresholds; 91,93% statements, 87,67% branches, 91,95% lines            |
+| `npm.cmd run test:unit -- --run` | 11 arquivos, **96 testes passando**                                                |
+| `npm.cmd run test:coverage`      | passou nos thresholds; 92,74% statements, 88,01% branches, 92,78% lines            |
 | `npm.cmd run lint`               | passou                                                                             |
 | `npm.cmd run typecheck`          | passou                                                                             |
 | `npm.cmd run format:check`       | passou                                                                             |
@@ -63,24 +64,18 @@ navegador real (etapa 21).
 
 ## 2. Etapa atual
 
-A etapa 19 (`feat(ui): add spelling suggestions panel with explicit apply`) está
-**implementada, verificada e commitada** em `f023240`. Foram adicionados:
+A etapa 20 (`test(api): cover format and spellcheck routes with mock provider`) está
+**implementada, verificada e commitada** em `1151218`. Foi adicionado:
 
-- `src/components/suggestions-panel.tsx`: painel com ação sob demanda “Sugerir
-  correções”, lista de original/sugestão/motivo, avisos, erro, estado vazio e botões
-  “Aplicar” e “Ignorar” com labels acessíveis e `aria-live`.
-- `src/components/format-workbench.tsx`: estado e fetch de `POST /api/spellcheck`,
-  `AbortController` próprio, type guard da resposta, descarte de sugestões quando o
-  texto muda, “Ignorar” sem tocar no texto e “Aplicar” que substitui o span e dispara
-  nova formatação.
-- `src/lib/spell/apply.ts`: `applySuggestion()` mapeia o `lineId` e os offsets das
-  linhas normalizadas de volta para o texto do editor, preserva CRLF, `\r`, espaços das
-  extremidades e acentos, e retorna `null` quando o trecho não coincide mais.
-- `tests/unit/apply.test.ts`: 7 testes de substituição, CRLF, quebra `\r`, linhas
-  vazias, original divergente, offsets inválidos e sugestão idêntica.
+- `tests/integration/routes.test.ts`: 10 testes dos handlers `POST` de formatação e
+  ortografia com `AI_PROVIDER=mock`, `vi.stubEnv`, `vi.resetModules()` e
+  `x-forwarded-for` para isolar o rate limit em memória. Cobrem 200 com metadados e
+  headers, conteúdo preservado, `415`, `INVALID_JSON`, `INVALID_INPUT`, `EMPTY_INPUT`,
+  `INPUT_TOO_LARGE` (caracteres e 64 KiB), `TOO_MANY_LINES`, `429` com `Retry-After`
+  nos dois limites (10/min e 5/min) e fallback 200 sem chave Google.
 
-O `POST /api/format` continua com rate limit de 10/min, limite de 64 KiB e os mesmos
-helpers HTTP. A próxima tarefa é a etapa 20 (testes de integração das rotas).
+A etapa 19 permanece commitada em `f023240`. O próximo passo é a etapa 21 (E2E e
+validação de acessibilidade/mobile).
 
 ## 3. Implementado e commitado
 
@@ -150,6 +145,9 @@ Arquivos implementados:
 - `src/components/format-workbench.tsx`: passou a consumir `POST /api/spellcheck`,
   validar o payload com type guard, limpar sugestões ao editar o texto e reformatar
   após aplicar uma correção.
+- `tests/integration/routes.test.ts`: 10 testes dos dois handlers com provider mock,
+  cobrindo sucesso, erros de corpo, limites, rate limit, `Retry-After`, headers e
+  fallback sem chave.
 - `src/lib/format/pipeline.ts`: `formatReport()` une `segmentInput` → `classifyReport` →
   `renderReport`, mede `durationMs` e preenche `meta` com provider, modelo,
   `usedFallback`, caracteres, linhas e blocos.
@@ -202,17 +200,15 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 19 foi commitada em `f023240` com `src/components/suggestions-panel.tsx`,
-`src/lib/spell/apply.ts`, `src/components/format-workbench.tsx` e
-`tests/unit/apply.test.ts`. As atualizações de continuidade (`ROADMAP.md`,
-`PROGRESS.md`, `AGENTS.md` e `README.md`) são commitadas separadamente.
+A etapa 20 foi commitada em `1151218` com `tests/integration/routes.test.ts`. As
+atualizações de continuidade (`ROADMAP.md`, `PROGRESS.md` e `AGENTS.md`) são commitadas
+separadamente.
 
-Os commits das etapas 12–19 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
-`3bc54e2`, `4e7db2f`, `f023240`) estão íntegros.
+Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+`3bc54e2`, `4e7db2f`, `f023240`, `1151218`) estão íntegros.
 
 ## 5. Ainda não implementado
 
-- Testes de integração das rotas (etapa 20).
 - Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
 - `.github/workflows/ci.yml`.
 - URL de demo pública no README; o README em pt-BR já cobre setup, arquitetura e
@@ -285,12 +281,18 @@ Os commits das etapas 12–19 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
     trecho ainda coincide e só então substitui e reformata. Se o texto mudou, a
     sugestão é descartada com aviso, sem edição parcial. Nenhum texto ou sugestão vai
     para storage ou log.
+22. **Rotas testadas por handler, não por servidor.** Os testes de integração importam
+    `POST` diretamente, usam `vi.stubEnv` e `vi.resetModules()` para recarregar `env` e
+    o rate limit em memória, e enviam `x-forwarded-for` único por cenário. Assim os
+    limites (10/min e 5/min) não vazam entre testes e nenhum servidor HTTP real é
+    necessário.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push concluído até a etapa 18.** `git push -u origin main` publicou a branch em
-  2026-11-08; o último commit publicado é `2b29f25`. O commit `f023240` da etapa 19
-  ainda não foi enviado. O remoto é
+  2026-11-08; o último commit publicado é `2b29f25`. Os commits `f023240` (etapa 19) e
+  `1151218` (etapa 20) ainda não foram enviados; o push será feito nesta sessão. O
+  remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
   o push em um terminal interativo e não deixe o comando pendurado em scripts.
 - **UI sem testes de componente/E2E.** O mapeamento de offsets do “Aplicar” tem testes
@@ -303,14 +305,11 @@ Os commits das etapas 12–19 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 - **Ortografia implementada, sem teste de navegador.** `POST /api/spellcheck` e o
   painel com “Aplicar”/“Ignorar” existem; falta cobrir o fluxo em E2E e validar
   acessibilidade/mobile em navegador real (etapa 21).
-- **Rota sem teste de integração.** As etapas 13 e 14 cobrem pipeline, helpers HTTP e
-  rate limit com testes unitários; a suíte de rotas em nível de HTTP (limites, erros,
-  rate limit e fallback) fica para a etapa 20.
 - **Rate limit em memória sem Upstash.** Em produção com várias instâncias o limite só
   é consistente com Upstash configurado (ADR 0004).
-- **Cobertura da camada de IA.** `src/lib/ai` ainda tem cobertura individual baixa; os
-  thresholds globais passam por causa do domínio. Testes de integração/mock são
-  necessários na etapa 20.
+- **Cobertura da camada de IA.** `src/lib/ai` subiu para 71,11% com os testes de
+  integração, mas os caminhos de sucesso do provider (chamada real e parse da resposta)
+  continuam sem teste; os thresholds globais passam por causa do domínio.
 - **Metadados de mock.** Em modo mock, `provider` vira `mock`, mas `model` continua
   vindo de `AI_MODEL` (por exemplo, `gemini-2.5-flash`). Normalizar para `heuristic`
   é uma melhoria opcional.
@@ -330,26 +329,26 @@ Os commits das etapas 12–19 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 20
+### 8.1 Iniciar a etapa 21
 
-Etapa 20 — `test(api): cover format and spellcheck routes with mock provider`:
+Etapa 21 — `test(e2e): cover format, copy, privacy and mobile flows`:
 
-- Criar `tests/integration/routes.test.ts` e importar os handlers `POST` de
-  `src/app/api/format/route.ts` e `src/app/api/spellcheck/route.ts` com
-  `AI_PROVIDER=mock`, `ALLOW_MOCK_AI=true` e `vi.resetModules()`.
-- Cobrir `/api/format`: 200 com HTML, `usedFallback: true`, `Cache-Control: no-store`,
-  `x-request-id` e headers de rate limit; JSON inválido, corpo não objeto, `text`
-  ausente, `EMPTY_INPUT`, `INPUT_TOO_LARGE`, `TOO_MANY_LINES`, `415` e `429` com
-  `Retry-After`.
-- Cobrir `/api/spellcheck`: 200 com `suggestions: []` e warning de mock; mesmos erros
-  de corpo e `429` após 5 requisições; fallback 200 quando a chave Google estiver
-  ausente.
-- Usar `Request` nativo com `x-forwarded-for` único por caso para isolar o rate limit
-  em memória e `vi.stubEnv` para o provider. Nenhum texto de laudo deve aparecer em
-  logs de teste.
+- Instalar os browsers do Playwright (`npx.cmd playwright install chromium`) e criar
+  `tests/e2e/workbench.spec.ts`. O `playwright.config.ts` já sobe `npm run dev` com
+  `AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true` nos projetos `chromium` e `mobile`.
+- Cobrir o fluxo principal: carregar um sample fictício, formatar, conferir a
+  pré-visualização e a aba HTML, copiar o fragmento (concedendo permissão de clipboard)
+  e baixar o `.html` via evento de download.
+- Cobrir o aviso de privacidade (visível na primeira visita e dispensável sem storage),
+  o painel de ortografia em modo mock (aviso e estado vazio) e o layout mobile sem
+  overflow horizontal.
+- Opcionalmente, interceptar `POST /api/spellcheck` com `page.route` para devolver uma
+  sugestão fictícia e validar “Aplicar” (texto alterado e nova formatação) e “Ignorar”
+  (texto intacto).
+- Validar foco visível, labels e `aria-live`; nenhum dado real de paciente nos testes.
 
-Entregar apenas essa etapa neste ciclo. Não iniciar os testes E2E (etapa 21) antes de
-concluir e registrar a etapa 20.
+Entregar apenas essa etapa neste ciclo. Não iniciar CI/deploy (etapas 22–24) antes de
+concluir e registrar a etapa 21.
 
 ## 9. Comandos de verificação
 
@@ -400,6 +399,7 @@ src/lib/ai/                provider, schema, prompt, classify, spellcheck
 src/lib/spell/             validação e aplicação de sugestões ortográficas
 src/lib/format/            domínio, pipeline, heurística, render, validação, invariantes
 tests/unit/                testes unitários (pipeline, spell, apply, http e rate limit)
+tests/integration/         testes dos handlers de /api/format e /api/spellcheck
 tests/fixtures/            laudos fictícios
 ```
 
