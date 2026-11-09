@@ -4,9 +4,8 @@ Atualizado em: 2026-11-08
 Branch: `main`
 Último commit de código: `1151218 test(api): cover format and spellcheck routes with mock provider`
 Commit anterior: `f023240 feat(ui): add spelling suggestions panel with explicit apply`
-Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `2b29f25`.
-Os commits das etapas 1–18 estão publicados; as etapas 19 e 20 estão commitadas
-localmente e o push será feito nesta sessão.
+Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `79b8c22`.
+Os commits das etapas 1–20 estão publicados.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -289,10 +288,9 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push concluído até a etapa 18.** `git push -u origin main` publicou a branch em
-  2026-11-08; o último commit publicado é `2b29f25`. Os commits `f023240` (etapa 19) e
-  `1151218` (etapa 20) ainda não foram enviados; o push será feito nesta sessão. O
-  remoto é
+- **Push concluído até a etapa 20.** `git push origin main` publicou a branch em
+  2026-11-08; os commits `f023240` (etapa 19), `1151218` (etapa 20) e `79b8c22`
+  (documentação) estão no remoto. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
   o push em um terminal interativo e não deixe o comando pendurado em scripts.
 - **UI sem testes de componente/E2E.** O mapeamento de offsets do “Aplicar” tem testes
