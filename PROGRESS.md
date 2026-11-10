@@ -2,10 +2,9 @@
 
 Atualizado em: 2026-11-10
 Branch: `main`
-Último commit de código: `27b4c1b test(e2e): run against production build`
-Commit anterior: `e991a53 docs: record stage 23 completion and next task`
-Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `0d00da5`.
-O push das etapas 21–23 está planejado para o fim desta sessão.
+Último commit de código: `829accc fix(ci): generate next types before typecheck`
+Commit anterior: `b7bb50f docs: align e2e docs with production server`
+Remoto: `origin` configurado; `main` publicada até `b7bb50f`; o fix do CI aguarda push.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -88,6 +87,11 @@ Depois do commit da etapa 23, o E2E passou a rodar contra o build de produção
 o dev server do Turbopack (processo do Chromium encerrado e `page.goto` estourando 90 s
 por compilação sob carga). Com o servidor de produção, 12/12 passaram em duas execuções
 seguidas (~22 s cada).
+
+O primeiro run do CI (`b7bb50f`, run #1) falhou no passo de typecheck porque
+`.next/types` não existe em checkout limpo e `src/app/layout.tsx` usa o tipo global
+`LayoutProps`. O commit `829accc` mudou o script `typecheck` para
+`next typegen && tsc --noEmit`; o próximo push dispara um novo run.
 
 ## 3. Implementado e commitado
 
@@ -218,6 +222,8 @@ Arquivos implementados:
 - `README.md`: demo (URL pendente da etapa 24), funcionalidades, stack, requisitos,
   configuração, execução, comandos, uso, arquitetura, API, privacidade, testes/CI,
   qualidade e links da documentação.
+- `package.json`: o script `typecheck` executa `next typegen` antes de `tsc --noEmit`
+  para gerar os tipos de rota/layout em checkout limpo.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
   Prettier, commitlint, Husky e lint-staged.
 - `SPEC.md` (movido de `docs/SPEC.md` nesta sessão), `docs/RULES.md`,
@@ -233,10 +239,10 @@ a skill local em `a41a02c`/`a59907b`. As atualizações de continuidade
 
 Os commits das etapas 12–23 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
 `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
-`a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`, `27b4c1b`) estão íntegros.
-`npm.cmd install` foi executado porque `node_modules` estava ausente; o
-`package-lock.json` foi revertido para não incluir o churn de `libc` introduzido pelo
-npm 11.
+`a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`, `27b4c1b`, `b7bb50f`,
+`829accc`) estão íntegros. `npm.cmd install` foi executado porque `node_modules` estava
+ausente; o `package-lock.json` foi revertido para não incluir o churn de `libc`
+introduzido pelo npm 11.
 
 ## 5. Ainda não implementado
 
@@ -341,13 +347,17 @@ npm 11.
     timeout), enquanto o servidor de produção responde em ~1 s por teste. Efeito
     colateral: o CI compila duas vezes (build explícito + webServer); o custo é pequeno e
     o build explícito continua sendo o gate da etapa 22.
+29. **Typegen antes do typecheck.** `src/app/layout.tsx` usa o tipo global `LayoutProps`
+    gerado pelo Next; em checkout limpo ele não existe e o `tsc` falhava no CI. O script
+    `typecheck` passou a rodar `next typegen && tsc --noEmit`, o que funciona sem build
+    completo e mantém o gate rápido.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push pendente.** O remoto está em `0d00da5` (etapa 20). Os commits `a41a02c`,
-  `6eba8a2`, `d02266e`, `a59907b` e `3dcf817` (etapas 21–22 e skill) são locais. O
-  remoto é `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial
-  expirar, repita o push em terminal interativo.
+- **Push.** `main` foi publicada até `b7bb50f` em 2026-11-10. O fix `829accc` e a
+  documentação seguinte são enviados em seguida. O remoto é
+  `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial expirar, repita
+  o push em terminal interativo.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
   `report-preview`, `suggestions-panel` e `privacy-notice` continuam sem testes de
   componente isolados.
