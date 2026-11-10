@@ -4,7 +4,8 @@ Atualizado em: 2026-11-10
 Branch: `main`
 Último commit de código: `829accc fix(ci): generate next types before typecheck`
 Commit anterior: `b7bb50f docs: align e2e docs with production server`
-Remoto: `origin` configurado; `main` publicada até `b7bb50f`; o fix do CI aguarda push.
+Remoto: `origin` configurado; etapas 21–23, a skill local e o fix do CI publicados em
+2026-11-10.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -354,8 +355,8 @@ introduzido pelo npm 11.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push.** `main` foi publicada até `b7bb50f` em 2026-11-10. O fix `829accc` e a
-  documentação seguinte são enviados em seguida. O remoto é
+- **Push.** `main` foi publicada em 2026-11-10 com as etapas 21–23, a skill local e o
+  fix do typegen. O run #2 do CI passou. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial expirar, repita
   o push em terminal interativo.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
