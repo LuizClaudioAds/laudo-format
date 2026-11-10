@@ -67,7 +67,7 @@ Legenda:
 - [x] Estados de carregamento, erro, fallback e `aria-live`.
 - [x] Laudos fictícios em `src/data/samples.ts`.
 - [x] Painel de sugestões ortográficas com “Aplicar” e “Ignorar”.
-- [ ] Acessibilidade e mobile validados.
+- [x] Acessibilidade e mobile validados.
 
 ## 6. Testes e qualidade
 
@@ -75,7 +75,7 @@ Legenda:
 - [x] Cobertura global acima de 80% em statements/linhas e 75% em branches.
 - [x] Testes de integração das rotas com provider mock.
 - [x] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
-- [ ] Testes E2E de formatação, cópia, privacidade e mobile.
+- [x] Testes E2E de formatação, cópia, privacidade e mobile.
 - [ ] Instalar browsers do Playwright no ambiente de CI.
 - [ ] Manter lint, typecheck, testes e build verdes em cada commit.
 
@@ -112,7 +112,7 @@ Legenda:
 | 18  | `feat(api): add optional spelling suggestion endpoint`             | concluído (`4e7db2f`) |
 | 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | concluído (`f023240`) |
 | 20  | `test(api): cover format and spellcheck routes with mock provider` | concluído (`1151218`) |
-| 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | pendente              |
+| 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | concluído (`6eba8a2`) |
 | 22  | `ci: run lint, typecheck, unit, build and e2e`                     | pendente              |
 | 23  | `docs: add readme with demo, architecture and setup`               | pendente              |
 | 24  | `chore: add vercel deployment configuration and env docs`          | pendente              |

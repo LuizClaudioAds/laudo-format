@@ -1,11 +1,11 @@
 # Progresso — laudo-format
 
-Atualizado em: 2026-11-08
+Atualizado em: 2026-11-10
 Branch: `main`
-Último commit de código: `1151218 test(api): cover format and spellcheck routes with mock provider`
-Commit anterior: `f023240 feat(ui): add spelling suggestions panel with explicit apply`
-Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `79b8c22`.
-Os commits das etapas 1–20 estão publicados.
+Último commit de código: `6eba8a2 test(e2e): cover format, copy, privacy and mobile flows`
+Commit anterior: `a41a02c chore(skills): add local playwright e2e skill`
+Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `0d00da5`.
+Os commits das etapas 21 e da skill local ainda não foram enviados ao remoto.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -24,17 +24,22 @@ Os commits das etapas 1–20 estão publicados.
 | Comando                          | Resultado                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------- |
 | `npm.cmd run test:unit -- --run` | 11 arquivos, **96 testes passando**                                                |
-| `npm.cmd run test:coverage`      | passou nos thresholds; 92,74% statements, 88,01% branches, 92,78% lines            |
+| `npm.cmd run test:coverage`      | não executado nesta sessão; última medição: 92,74% statements, 88,01% branches     |
 | `npm.cmd run lint`               | passou                                                                             |
 | `npm.cmd run typecheck`          | passou                                                                             |
 | `npm.cmd run format:check`       | passou                                                                             |
 | `npm.cmd run build`              | passou; `/` e `/_not-found` estáticas; `/api/format` e `/api/spellcheck` dinâmicas |
-| `npm.cmd run test:e2e`           | não executado; browsers do Playwright não instalados e ainda não há testes E2E     |
+| `npm.cmd run test:e2e`           | **12 testes passando** (6 specs × chromium/mobile) em ~26 s                        |
 
 Avisos não bloqueantes do Vitest:
 
 - `vitest.config.ts` usa sintaxe ESM carregada como CJS.
 - Plugin `vite-tsconfig-paths` é sugerido substituir por `resolve.tsconfigPaths`.
+
+O ambiente estava sem `node_modules`; `npm.cmd install` foi executado nesta sessão (529
+pacotes, com avisos `EBADENGINE` do Node 22.14.0) e o Chromium foi instalado com
+`npx.cmd playwright install chromium`. O `package-lock.json` foi revertido para não
+incluir o churn de `libc` do npm 11.
 
 Smoke test manual com `next start` na porta 3100 (após `npm.cmd run build`):
 
@@ -63,18 +68,24 @@ navegador real (etapa 21).
 
 ## 2. Etapa atual
 
-A etapa 20 (`test(api): cover format and spellcheck routes with mock provider`) está
-**implementada, verificada e commitada** em `1151218`. Foi adicionado:
+A etapa 21 (`test(e2e): cover format, copy, privacy and mobile flows`) está
+**implementada, verificada e commitada** em `6eba8a2`. Foi adicionado:
 
-- `tests/integration/routes.test.ts`: 10 testes dos handlers `POST` de formatação e
-  ortografia com `AI_PROVIDER=mock`, `vi.stubEnv`, `vi.resetModules()` e
-  `x-forwarded-for` para isolar o rate limit em memória. Cobrem 200 com metadados e
-  headers, conteúdo preservado, `415`, `INVALID_JSON`, `INVALID_INPUT`, `EMPTY_INPUT`,
-  `INPUT_TOO_LARGE` (caracteres e 64 KiB), `TOO_MANY_LINES`, `429` com `Retry-After`
-  nos dois limites (10/min e 5/min) e fallback 200 sem chave Google.
+- `tests/e2e/workbench.spec.ts`: 6 testes rodados nos projetos `chromium` e `mobile`
+  (12 execuções). Cobrem carregar sample fictício e formatar; presets sincronizados
+  com o sample; avisos e metadados do modo mock; abas com navegação por teclado;
+  cópia do HTML via Clipboard API com permissão concedida; download de
+  `laudo-formatado.html` conferindo o conteúdo no disco; ausência de overflow
+  horizontal; aviso de privacidade visível, dispensável sem storage e visível após
+  reload; labels, `aria-live` e foco visível; ortografia em modo mock (aviso + estado
+  vazio); aplicar sugestão fictícia com `page.route` (texto corrigido e reformatação);
+  e ignorar sugestão sem alterar o texto.
+- `playwright.config.ts`: `baseURL` e `webServer.url` passaram de `127.0.0.1` para
+  `localhost`, porque o Next.js 16 bloqueia recursos de dev cross-origin em
+  `127.0.0.1` e o app não hidratava nos testes (cliques e edições não surtiam efeito).
 
-A etapa 19 permanece commitada em `f023240`. O próximo passo é a etapa 21 (E2E e
-validação de acessibilidade/mobile).
+A skill local `laudo-e2e` foi commitada em `a41a02c`. O próximo passo é a etapa 22
+(CI com lint, typecheck, testes, build e E2E).
 
 ## 3. Implementado e commitado
 
@@ -147,6 +158,12 @@ Arquivos implementados:
 - `tests/integration/routes.test.ts`: 10 testes dos dois handlers com provider mock,
   cobrindo sucesso, erros de corpo, limites, rate limit, `Retry-After`, headers e
   fallback sem chave.
+- `tests/e2e/workbench.spec.ts`: 6 testes Playwright nos projetos `chromium` e `mobile`
+  (12 execuções) cobrindo formatação de sample, abas e cópia, download, privacidade,
+  ortografia em mock, aplicar/ignorar com `page.route`, acessibilidade básica e overflow
+  mobile.
+- `playwright.config.ts`: `baseURL` e `webServer.url` em `localhost` para evitar o
+  bloqueio de recursos de dev cross-origin do Next.js 16.
 - `src/lib/format/pipeline.ts`: `formatReport()` une `segmentInput` → `classifyReport` →
   `renderReport`, mede `durationMs` e preenche `meta` com provider, modelo,
   `usedFallback`, caracteres, linhas e blocos.
@@ -199,16 +216,18 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 20 foi commitada em `1151218` com `tests/integration/routes.test.ts`. As
-atualizações de continuidade (`ROADMAP.md`, `PROGRESS.md` e `AGENTS.md`) são commitadas
-separadamente.
+A etapa 21 foi commitada em `6eba8a2` com `tests/e2e/workbench.spec.ts` e o ajuste de
+`playwright.config.ts`; a skill local foi commitada em `a41a02c`. As atualizações de
+continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
 
-Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
-`3bc54e2`, `4e7db2f`, `f023240`, `1151218`) estão íntegros.
+Os commits das etapas 12–21 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+`3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`) estão íntegros.
+`npm.cmd install` foi executado porque `node_modules` estava ausente; o
+`package-lock.json` foi revertido para não incluir o churn de `libc` introduzido pelo
+npm 11.
 
 ## 5. Ainda não implementado
 
-- Testes E2E e validação de acessibilidade/mobile em navegador real (etapa 21).
 - `.github/workflows/ci.yml`.
 - URL de demo pública no README; o README em pt-BR já cobre setup, arquitetura e
   privacidade.
@@ -290,6 +309,14 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
     `page.route`, overflow mobile) para evitar reler a documentação a cada sessão. A
     skill é descoberta automaticamente pelo OpenCode, carregada sob demanda e não
     altera o app nem os testes.
+24. **E2E em `localhost`, não em `127.0.0.1`.** O Next.js 16 bloqueia recursos de dev
+    cross-origin por padrão; com `127.0.0.1` o bundle não hidratava e cliques, selects
+    e digitação não tinham efeito. `playwright.config.ts` usa `http://localhost:3000`
+    no `baseURL` e no `webServer`, mantendo `AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true`.
+25. **Orçamento de rate limit nos E2E.** Cada spec formata no máximo duas vezes (fluxo
+    principal e aplicar) para caber no limite de 10/min por IP; a ortografia real é
+    chamada uma vez por projeto e os demais cenários usam `page.route`. Se o limite for
+    atingido, o teste falha com `429`, não com erro de UI.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
@@ -298,16 +325,12 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
   (documentação) estão no remoto. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
   o push em um terminal interativo e não deixe o comando pendurado em scripts.
-- **UI sem testes de componente/E2E.** O mapeamento de offsets do “Aplicar” tem testes
-  unitários e a página foi verificada por lint, typecheck, build e smoke test (`GET /`
-  com o painel de ortografia), mas copiar/baixar, dispensa do aviso, carregamento de
-  exemplo e o fluxo completo de aplicar/ignorar em navegador real ficam para a etapa 21.
+- **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
+  `report-preview`, `suggestions-panel` e `privacy-notice` continuam sem testes de
+  componente isolados.
 - **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
   isso é intencional para não usar storage.
 - **README em pt-BR, sem URL de demo publicada.**
-- **Ortografia implementada, sem teste de navegador.** `POST /api/spellcheck` e o
-  painel com “Aplicar”/“Ignorar” existem; falta cobrir o fluxo em E2E e validar
-  acessibilidade/mobile em navegador real (etapa 21).
 - **Rate limit em memória sem Upstash.** Em produção com várias instâncias o limite só
   é consistente com Upstash configurado (ADR 0004).
 - **Cobertura da camada de IA.** `src/lib/ai` subiu para 71,11% com os testes de
@@ -323,7 +346,11 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
   não aceita o segment config `runtime`; o padrão já é Node.js.
 - **Vitest warnings.** Config ESM/CJS e `vite-tsconfig-paths`; não falham. Limpeza
   opcional.
-- **Playwright.** Browsers não instalados; E2E ainda não existe.
+- **Playwright.** Chromium e FFmpeg instalados localmente; CI ainda precisa instalar
+  browsers e dependências do sistema (etapa 22).
+- **Node local 22.14.0.** `jsdom@31` pede `^22.22.2` e `lint-staged@17.6` pede
+  `>=22.22.1`; o `npm install` emite `EBADENGINE`, mas lint, typecheck, testes, build e
+  E2E passaram. Atualizar o Node antes de configurar o CI.
 - **Sem chave Google/Upstash local.** O comportamento esperado é fallback heurístico.
 - **`next.config.ts`** mantém `cacheComponents` e `partialPrefetching` do scaffold e
   ainda não tem headers de segurança.
@@ -332,26 +359,21 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 21
+### 8.1 Iniciar a etapa 22
 
-Etapa 21 — `test(e2e): cover format, copy, privacy and mobile flows`:
+Etapa 22 — `ci: run lint, typecheck, unit, build and e2e`:
 
-- Instalar os browsers do Playwright (`npx.cmd playwright install chromium`) e criar
-  `tests/e2e/workbench.spec.ts`. O `playwright.config.ts` já sobe `npm run dev` com
-  `AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true` nos projetos `chromium` e `mobile`.
-- Cobrir o fluxo principal: carregar um sample fictício, formatar, conferir a
-  pré-visualização e a aba HTML, copiar o fragmento (concedendo permissão de clipboard)
-  e baixar o `.html` via evento de download.
-- Cobrir o aviso de privacidade (visível na primeira visita e dispensável sem storage),
-  o painel de ortografia em modo mock (aviso e estado vazio) e o layout mobile sem
-  overflow horizontal.
-- Opcionalmente, interceptar `POST /api/spellcheck` com `page.route` para devolver uma
-  sugestão fictícia e validar “Aplicar” (texto alterado e nova formatação) e “Ignorar”
-  (texto intacto).
-- Validar foco visível, labels e `aria-live`; nenhum dado real de paciente nos testes.
+- Criar `.github/workflows/ci.yml` com `actions/checkout`, `actions/setup-node`
+  (Node 24 ou `>=22.22`, para evitar os avisos de engine) e `npm ci` com cache do npm.
+- Rodar `npm run lint`, `npm run typecheck`, `npm run test:unit -- --run` e
+  `npm run build`; em seguida instalar o browser com
+  `npx playwright install --with-deps chromium` e rodar `npm run test:e2e` com `CI=1`
+  (retries 2 e workers 2 já vêm do `playwright.config.ts`).
+- Não usar segredos no job: o `webServer` do E2E define `AI_PROVIDER=mock` e
+  `ALLOW_MOCK_AI=true`; com `CI=1` o servidor não é reutilizado.
+- Não adicionar deploy, README ou headers de segurança (etapas 23–24).
 
-Entregar apenas essa etapa neste ciclo. Não iniciar CI/deploy (etapas 22–24) antes de
-concluir e registrar a etapa 21.
+Entregar apenas a etapa 22 neste ciclo.
 
 ## 9. Comandos de verificação
 
@@ -404,6 +426,7 @@ src/lib/format/            domínio, pipeline, heurística, render, validação,
 .opencode/skills/          skill local laudo-e2e (convenções Playwright)
 tests/unit/                testes unitários (pipeline, spell, apply, http e rate limit)
 tests/integration/         testes dos handlers de /api/format e /api/spellcheck
+tests/e2e/                 workbench.spec.ts (Playwright, chromium e mobile)
 tests/fixtures/            laudos fictícios
 ```
 
