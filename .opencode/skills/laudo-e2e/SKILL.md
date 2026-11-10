@@ -20,10 +20,10 @@ npm.cmd run test:e2e -- --project=chromium
 
 `playwright.config.ts` já faz o resto:
 
-- sobe `npm run dev` em `http://localhost:3000` com `AI_PROVIDER=mock` e
-  `ALLOW_MOCK_AI=true`;
-- reutiliza servidor existente fora de CI (porta ocupada por outro env pode mascarar o
-  teste: encerre o servidor antes);
+- gera o build e sobe `npm run start` em `http://localhost:3000` com `AI_PROVIDER=mock`
+  e `ALLOW_MOCK_AI=true`;
+- reutiliza servidor existente fora de CI (porta ocupada por outro env ou por um dev
+  server pode mascarar o teste: encerre o servidor antes);
 - projetos `chromium` (Desktop Chrome) e `mobile` (Pixel 7, também Chromium);
 - `testDir` em `./tests/e2e`, trace no primeiro retry, screenshot só na falha.
 
@@ -125,6 +125,8 @@ Preservação de conteúdo:
 
 - Use `http://localhost:3000`, nunca `127.0.0.1`: o Next.js 16 bloqueia recursos de dev
   cross-origin e o app não hidrata (cliques e digitação não surtem efeito).
+- O webServer roda o build de produção; a primeira execução leva ~10 s a mais. Se
+  alterar código e reutilizar servidor, reinicie-o para não testar build antigo.
 - Editar texto após formatar limpa resultado e sugestões: não espere resultado antigo.
 - O aviso de privacidade volta a cada navegação (sem storage); reload mostra de novo.
 - Rate limit em memória por IP: 10 formatações/min e 5 ortografias/min. Cada spec que

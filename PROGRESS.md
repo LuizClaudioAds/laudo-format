@@ -2,8 +2,8 @@
 
 Atualizado em: 2026-11-10
 Branch: `main`
-Último commit de código: `7f3667d docs: add readme with demo, architecture and setup`
-Commit anterior: `50e1819 docs: record stage 22 completion and next task`
+Último commit de código: `27b4c1b test(e2e): run against production build`
+Commit anterior: `e991a53 docs: record stage 23 completion and next task`
 Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `0d00da5`.
 O push das etapas 21–23 está planejado para o fim desta sessão.
 
@@ -82,6 +82,13 @@ A etapa 23 (`docs: add readme with demo, architecture and setup`) está
 A etapa 22 permanece em `3dcf817`. A URL de demo e a configuração da Vercel ficam para a
 etapa 24.
 
+Depois do commit da etapa 23, o E2E passou a rodar contra o build de produção
+(`27b4c1b`): o `webServer` executa `npm run build && npm run start` e o timeout de
+`expect` subiu para 15 s. Motivo: duas execuções locais falharam de forma diferente com
+o dev server do Turbopack (processo do Chromium encerrado e `page.goto` estourando 90 s
+por compilação sob carga). Com o servidor de produção, 12/12 passaram em duas execuções
+seguidas (~22 s cada).
+
 ## 3. Implementado e commitado
 
 Commits existentes:
@@ -159,7 +166,8 @@ Arquivos implementados:
   ortografia em mock, aplicar/ignorar com `page.route`, acessibilidade básica e overflow
   mobile.
 - `playwright.config.ts`: `baseURL` e `webServer.url` em `localhost` para evitar o
-  bloqueio de recursos de dev cross-origin do Next.js 16.
+  bloqueio de recursos de dev cross-origin do Next.js 16; o `webServer` roda
+  `npm run build && npm run start` e `expect.timeout` é 15 s.
 - `.github/workflows/ci.yml`: CI em push para `main` e pull requests, com Node do
   `.nvmrc`, `npm ci` com cache, lint, typecheck, testes unitários/integração, build,
   Chromium do Playwright com dependências, E2E e artefatos em caso de falha.
@@ -218,15 +226,17 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 23 foi commitada em `7f3667d` com o `README.md`; a etapa 22 está em `3dcf817`,
-a etapa 21 em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de
-continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
+A etapa 23 foi commitada em `7f3667d` com o `README.md` e atualizada em `27b4c1b`
+(E2E contra build de produção); a etapa 22 está em `3dcf817`, a etapa 21 em `6eba8a2` e
+a skill local em `a41a02c`/`a59907b`. As atualizações de continuidade
+(`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
 
 Os commits das etapas 12–23 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
 `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
-`a59907b`, `3dcf817`, `50e1819`, `7f3667d`) estão íntegros. `npm.cmd install` foi
-executado porque `node_modules` estava ausente; o `package-lock.json` foi revertido para
-não incluir o churn de `libc` introduzido pelo npm 11.
+`a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`, `27b4c1b`) estão íntegros.
+`npm.cmd install` foi executado porque `node_modules` estava ausente; o
+`package-lock.json` foi revertido para não incluir o churn de `libc` introduzido pelo
+npm 11.
 
 ## 5. Ainda não implementado
 
@@ -325,6 +335,12 @@ não incluir o churn de `libc` introduzido pelo npm 11.
 27. **README sem link inventado.** A seção de demo existe, mas a URL só é adicionada
     depois do deploy real (etapa 24), para não publicar link quebrado. O README também
     documenta a pegadinha do `localhost` no E2E e o orçamento de rate limit por IP.
+28. **E2E contra build de produção.** O `webServer` do Playwright roda
+    `npm run build && npm run start` em vez de `npm run dev`. O dev server do Turbopack
+    ficou instável sob carga (compilação da rota de ortografia e `page.goto` estourando
+    timeout), enquanto o servidor de produção responde em ~1 s por teste. Efeito
+    colateral: o CI compila duas vezes (build explícito + webServer); o custo é pequeno e
+    o build explícito continua sendo o gate da etapa 22.
 
 ## 7. Problemas conhecidos e pontos de atenção
 

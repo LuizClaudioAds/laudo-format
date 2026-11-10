@@ -173,11 +173,12 @@ Na primeira execução do E2E, instale o browser:
 npx.cmd playwright install chromium
 ```
 
-O `playwright.config.ts` sobe `npm run dev` em `http://localhost:3000` com
-`AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true`; o E2E não precisa de chave nem de servidor
-externo. Use `localhost`, não `127.0.0.1`: o Next.js 16 bloqueia recursos de dev
-cross-origin e a página não hidrata. Cada cenário consome o rate limit em memória de
-10 formatações/min por IP.
+O `playwright.config.ts` gera o build e sobe `npm run start` em
+`http://localhost:3000` com `AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true`; o E2E não precisa
+de chave nem de servidor externo. O primeiro run compila o app (~10 s). Use `localhost`,
+não `127.0.0.1`: o Next.js 16 bloqueia recursos de dev cross-origin e a página não
+hidrata em modo dev. Cada cenário consome o rate limit em memória de 10 formatações/min
+por IP.
 
 O workflow [.github/workflows/ci.yml](.github/workflows/ci.yml) roda em push para `main`
 e em pull requests: `npm ci`, lint, typecheck, testes, build, Chromium com dependências
