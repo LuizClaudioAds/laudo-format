@@ -2,10 +2,9 @@
 
 Atualizado em: 2026-11-10
 Branch: `main`
+Último commit: `39d597f docs: record successful push and ci run`
 Último commit de código: `829accc fix(ci): generate next types before typecheck`
-Commit anterior: `b7bb50f docs: align e2e docs with production server`
-Remoto: `origin` configurado; etapas 21–23, a skill local e o fix do CI publicados em
-2026-11-10.
+Remoto: `origin` publicado até `39d597f`; CI do GitHub verde no run #3.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -29,7 +28,8 @@ Remoto: `origin` configurado; etapas 21–23, a skill local e o fix do CI public
 | `npm.cmd run typecheck`          | passou                                                                             |
 | `npm.cmd run format:check`       | passou                                                                             |
 | `npm.cmd run build`              | passou; `/` e `/_not-found` estáticas; `/api/format` e `/api/spellcheck` dinâmicas |
-| `npm.cmd run test:e2e`           | **12 testes passando** (6 specs × chromium/mobile) em ~26 s                        |
+| `npm.cmd run test:e2e`           | **12 testes passando** (6 specs × chromium/mobile) em ~22 s                        |
+| CI no GitHub (run #3)            | **sucesso** em `39d597f`: lint, typecheck, testes, build e E2E                     |
 
 Avisos não bloqueantes do Vitest:
 
@@ -356,7 +356,7 @@ introduzido pelo npm 11.
 ## 7. Problemas conhecidos e pontos de atenção
 
 - **Push.** `main` foi publicada em 2026-11-10 com as etapas 21–23, a skill local e o
-  fix do typegen. O run #2 do CI passou. O remoto é
+  fix do typegen (HEAD `39d597f`). Os runs #2 e #3 do CI passaram. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial expirar, repita
   o push em terminal interativo.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
@@ -395,6 +395,15 @@ introduzido pelo npm 11.
 
 ## 8. Próxima tarefa exata
 
+### 8.0 Estado ao retomar (2026-11-11)
+
+- Árvore limpa, HEAD `39d597f` e CI verde; nenhum trabalho pendente de commit.
+- Etapas 21 (E2E), 22 (CI) e 23 (README) concluídas e publicadas; a skill local
+  `laudo-e2e` está disponível para carregar sob demanda.
+- Se `node_modules` não existir, rode `npm.cmd install`; o Chromium já está instalado e o
+  E2E compila e sobe o servidor de produção sozinho.
+- Próxima tarefa: etapa 24 (abaixo). Não iniciar outra etapa antes de concluí-la.
+
 ### 8.1 Iniciar a etapa 24
 
 Etapa 24 — `chore: add vercel deployment configuration and env docs`:
@@ -421,7 +430,11 @@ npm.cmd run typecheck
 npm.cmd run test:unit -- --run
 npm.cmd run test:coverage
 npm.cmd run build
+npm.cmd run test:e2e
 ```
+
+O `test:e2e` compila e sobe o servidor de produção automaticamente; o CI repete o
+typecheck (com `next typegen`), os testes, o build e o E2E.
 
 Antes de push:
 
