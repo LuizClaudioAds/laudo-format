@@ -2,10 +2,10 @@
 
 Atualizado em: 2026-11-10
 Branch: `main`
-Último commit de código: `3dcf817 ci: run lint, typecheck, unit, build and e2e`
-Commit anterior: `a59907b docs(skills): align e2e skill with localhost base url`
+Último commit de código: `7f3667d docs: add readme with demo, architecture and setup`
+Commit anterior: `50e1819 docs: record stage 22 completion and next task`
 Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `0d00da5`.
-Os commits das etapas 21–22 e da skill local ainda não foram enviados ao remoto.
+O push das etapas 21–23 está planejado para o fim desta sessão.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -68,23 +68,19 @@ navegador real (etapa 21).
 
 ## 2. Etapa atual
 
-A etapa 22 (`ci: run lint, typecheck, unit, build and e2e`) está **implementada,
-verificada localmente e commitada** em `3dcf817`. Foi adicionado:
+A etapa 23 (`docs: add readme with demo, architecture and setup`) está
+**implementada e commitada** em `7f3667d`. O `README.md` passou a cobrir:
 
-- `.github/workflows/ci.yml`: workflow `CI` disparado em push para `main` e em pull
-  requests, com `permissions: contents: read`, `concurrency` por ref (cancela apenas
-  PRs antigos) e `timeout-minutes: 20`.
-- Passos: checkout, setup-node lendo `.nvmrc` (22 → último 22.x) com cache npm,
-  `npm ci`, `lint`, `typecheck`, `test:unit -- --run`, `build`,
-  `npx playwright install --with-deps chromium`, `test:e2e` e upload de
-  `playwright-report/`/`test-results/` apenas em falha.
-- O job não usa segredos: o `webServer` do Playwright já define `AI_PROVIDER=mock` e
-  `ALLOW_MOCK_AI=true`; com `CI=true` ele não reutiliza servidor e usa retries 2,
-  workers 2 e relatório HTML.
+- seção **Demo** explícita, sem inventar link: a URL pública entra na etapa 24;
+- requisitos com Node 22 lido do `.nvmrc`;
+- tabela de comandos incluindo `npx.cmd playwright install chromium`;
+- seção **Testes e CI** com os 96 testes unitários/integração, 6 cenários E2E em
+  `chromium`/`mobile`, instruções de instalação do browser, uso de `localhost`,
+  `AI_PROVIDER=mock`, rate limit e o que o workflow publica em falha;
+- seção **Qualidade** com `format:check` e a recomendação de rodar o E2E antes do push.
 
-A etapa 21 permanece em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. O workflow
-ainda não rodou no GitHub (os commits não foram enviados). O próximo passo é a etapa 23
-(README final e URL de demo).
+A etapa 22 permanece em `3dcf817`. A URL de demo e a configuração da Vercel ficam para a
+etapa 24.
 
 ## 3. Implementado e commitado
 
@@ -211,6 +207,9 @@ Arquivos implementados:
   dos presets e segmentação válida dos samples.
 - `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/globals.css`: UI real em pt-BR,
   `lang="pt-BR"`, metadados do produto, grid de dois painéis e fontes do scaffold.
+- `README.md`: demo (URL pendente da etapa 24), funcionalidades, stack, requisitos,
+  configuração, execução, comandos, uso, arquitetura, API, privacidade, testes/CI,
+  qualidade e links da documentação.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
   Prettier, commitlint, Husky e lint-staged.
 - `SPEC.md` (movido de `docs/SPEC.md` nesta sessão), `docs/RULES.md`,
@@ -219,20 +218,19 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 22 foi commitada em `3dcf817` com `.github/workflows/ci.yml`; a etapa 21 está
-em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de continuidade
-(`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
+A etapa 23 foi commitada em `7f3667d` com o `README.md`; a etapa 22 está em `3dcf817`,
+a etapa 21 em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de
+continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
 
-Os commits das etapas 12–22 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+Os commits das etapas 12–23 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
 `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
-`a59907b`, `3dcf817`) estão íntegros. `npm.cmd install` foi executado porque
-`node_modules` estava ausente; o `package-lock.json` foi revertido para não incluir o
-churn de `libc` introduzido pelo npm 11.
+`a59907b`, `3dcf817`, `50e1819`, `7f3667d`) estão íntegros. `npm.cmd install` foi
+executado porque `node_modules` estava ausente; o `package-lock.json` foi revertido para
+não incluir o churn de `libc` introduzido pelo npm 11.
 
 ## 5. Ainda não implementado
 
-- URL de demo pública no README; o README em pt-BR já cobre setup, arquitetura e
-  privacidade.
+- URL de demo pública no README (depende do deploy, etapa 24).
 - Configuração da Vercel e headers de segurança no `next.config.ts`.
 
 ## 6. Decisões técnicas tomadas
@@ -324,6 +322,9 @@ churn de `libc` introduzido pelo npm 11.
     vem do `.nvmrc` (22 → último 22.x, compatível com `jsdom`/`lint-staged`), o cache
     do npm é habilitado, e `npm ci` valida o lockfile. Playwright instala somente
     `chromium --with-deps`; relatórios e traces sobem como artefato apenas em falha.
+27. **README sem link inventado.** A seção de demo existe, mas a URL só é adicionada
+    depois do deploy real (etapa 24), para não publicar link quebrado. O README também
+    documenta a pegadinha do `localhost` no E2E e o orçamento de rate limit por IP.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
@@ -336,7 +337,8 @@ churn de `libc` introduzido pelo npm 11.
   componente isolados.
 - **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
   isso é intencional para não usar storage.
-- **README em pt-BR, sem URL de demo publicada.**
+- **README em pt-BR com seção de demo pendente.** A URL pública será adicionada na
+  etapa 24 (deploy).
 - **Rate limit em memória sem Upstash.** Em produção com várias instâncias o limite só
   é consistente com Upstash configurado (ADR 0004).
 - **Cobertura da camada de IA.** `src/lib/ai` subiu para 71,11% com os testes de
@@ -366,20 +368,23 @@ churn de `libc` introduzido pelo npm 11.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 23
+### 8.1 Iniciar a etapa 24
 
-Etapa 23 — `docs: add readme with demo, architecture and setup`:
+Etapa 24 — `chore: add vercel deployment configuration and env docs`:
 
-- Revisar o `README.md` em pt-BR contra o código final: setup com `npm.cmd`, variáveis,
-  limites, privacidade, arquitetura resumida e comandos de teste.
-- Adicionar seção de testes e CI (`npm.cmd run test:unit`, `npm.cmd run test:e2e`,
-  `npx.cmd playwright install chromium`) e explicar que o E2E usa `AI_PROVIDER=mock`.
-- Deixar um lugar explícito para a URL de demo pública; se o deploy ainda não existir,
-  registrar que a URL será adicionada na etapa 24, sem inventar link.
-- Não incluir dados reais de paciente, payloads, chaves ou prints com conteúdo real.
+- Adicionar headers de segurança em `next.config.ts` sem quebrar `cacheComponents`:
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
+  `X-Frame-Options: DENY` (ou `frame-ancestors 'none'` em CSP, se adotada) e
+  `Permissions-Policy` restritiva; manter as rotas dinâmicas e o build passando.
+- Documentar em `docs/DEPLOY.md` as variáveis de produção: `AI_PROVIDER=google`,
+  `GOOGLE_GENERATIVE_AI_API_KEY`, `IP_HASH_SALT`, Upstash opcional, limites e Node 22.
+  Nunca habilitar `ALLOW_MOCK_AI=true` em produção.
+- Configurar o projeto na Vercel, validar o build e o funcionamento das duas rotas e só
+  então adicionar a URL pública ao `README.md` (substituindo o texto da seção Demo).
+- Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final; nenhum dado real
+  de paciente no demo.
 
-Entregar apenas a etapa 23 neste ciclo; deploy/Vercel e headers de segurança ficam para
-a etapa 24.
+Entregar apenas a etapa 24 neste ciclo.
 
 ## 9. Comandos de verificação
 

@@ -81,7 +81,8 @@ Legenda:
 
 ## 7. Documentação e publicação
 
-- [ ] README final com URL de demo, setup, arquitetura e privacidade.
+- [x] README com setup, arquitetura, privacidade, testes e CI.
+- [ ] Adicionar URL de demo pública ao README após o deploy.
 - [x] CI com lint, typecheck, testes, build e E2E.
 - [ ] Configuração de deploy na Vercel e headers de segurança.
 - [ ] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.
@@ -114,5 +115,5 @@ Legenda:
 | 20  | `test(api): cover format and spellcheck routes with mock provider` | concluído (`1151218`) |
 | 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | concluído (`6eba8a2`) |
 | 22  | `ci: run lint, typecheck, unit, build and e2e`                     | concluído (`3dcf817`) |
-| 23  | `docs: add readme with demo, architecture and setup`               | pendente              |
+| 23  | `docs: add readme with demo, architecture and setup`               | concluído (`7f3667d`) |
 | 24  | `chore: add vercel deployment configuration and env docs`          | pendente              |
