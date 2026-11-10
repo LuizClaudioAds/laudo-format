@@ -9,6 +9,11 @@ notas e assinaturas — e o renderer determinístico aplica a formatação usand
 as tags `<b>`, `<i>` e `<br>`. A IA nunca devolve o laudo formatado nem reescreve o
 texto: ela apenas indica IDs de linhas, tipos de bloco e spans de itálico.
 
+## Demo
+
+A URL pública do demo será adicionada após a configuração de deploy (etapa 24 do
+[ROADMAP.md](ROADMAP.md)). Enquanto isso, rode localmente com `npm.cmd run dev`.
+
 ## Funcionalidades
 
 - Entrada de texto com contagem de caracteres e linhas não vazias.
@@ -34,7 +39,7 @@ texto: ela apenas indica IDs de linhas, tipos de bloco e spans de itálico.
 
 ## Requisitos
 
-- Node.js compatível com o Next.js 16.
+- Node.js 22 (o `.nvmrc` fixa a major; o CI instala o último 22.x).
 - `npm`.
 - Chave do Google AI Studio para usar a IA (opcional para o modo heurístico).
 
@@ -83,18 +88,19 @@ Abra <http://localhost:3000>.
 
 ## Comandos
 
-| Comando                          | Descrição                                  |
-| -------------------------------- | ------------------------------------------ |
-| `npm.cmd run dev`                | Inicia o servidor de desenvolvimento       |
-| `npm.cmd run build`              | Gera o build de produção                   |
-| `npm.cmd run start`              | Inicia o build de produção                 |
-| `npm.cmd run lint`               | Executa o ESLint                           |
-| `npm.cmd run typecheck`          | Verifica os tipos com `tsc --noEmit`       |
-| `npm.cmd run test:unit -- --run` | Executa os testes unitários uma vez        |
-| `npm.cmd run test:coverage`      | Executa os testes com cobertura            |
-| `npm.cmd run test:e2e`           | Executa os testes E2E com Playwright       |
-| `npm.cmd run format`             | Formata o código com Prettier              |
-| `npm.cmd run format:check`       | Verifica a formatação sem alterar arquivos |
+| Comando                               | Descrição                                  |
+| ------------------------------------- | ------------------------------------------ |
+| `npm.cmd run dev`                     | Inicia o servidor de desenvolvimento       |
+| `npm.cmd run build`                   | Gera o build de produção                   |
+| `npm.cmd run start`                   | Inicia o build de produção                 |
+| `npm.cmd run lint`                    | Executa o ESLint                           |
+| `npm.cmd run typecheck`               | Verifica os tipos com `tsc --noEmit`       |
+| `npm.cmd run test:unit -- --run`      | Executa os testes unitários uma vez        |
+| `npm.cmd run test:coverage`           | Executa os testes com cobertura            |
+| `npm.cmd run test:e2e`                | Executa os testes E2E com Playwright       |
+| `npx.cmd playwright install chromium` | Instala o browser usado pelos testes E2E   |
+| `npm.cmd run format`                  | Formata o código com Prettier              |
+| `npm.cmd run format:check`            | Verifica a formatação sem alterar arquivos |
 
 ## Como usar
 
@@ -153,6 +159,30 @@ Os contratos completos, limites e códigos de erro estão em
   compatível e faça a revisão jurídica necessária.
 - `ALLOW_MOCK_AI=true` deve ser usado somente em desenvolvimento/teste.
 
+## Testes e CI
+
+- `npm.cmd run test:unit -- --run`: 96 testes unitários e de integração (Vitest 5).
+- `npm.cmd run test:coverage`: cobertura V8 com thresholds globais.
+- `npm.cmd run test:e2e`: 6 cenários Playwright executados nos projetos `chromium` e
+  `mobile` (12 execuções), cobrindo formatação, abas e cópia, download, aviso de
+  privacidade, ortografia com “Aplicar”/“Ignorar”, acessibilidade básica e overflow.
+
+Na primeira execução do E2E, instale o browser:
+
+```powershell
+npx.cmd playwright install chromium
+```
+
+O `playwright.config.ts` sobe `npm run dev` em `http://localhost:3000` com
+`AI_PROVIDER=mock` e `ALLOW_MOCK_AI=true`; o E2E não precisa de chave nem de servidor
+externo. Use `localhost`, não `127.0.0.1`: o Next.js 16 bloqueia recursos de dev
+cross-origin e a página não hidrata. Cada cenário consome o rate limit em memória de
+10 formatações/min por IP.
+
+O workflow [.github/workflows/ci.yml](.github/workflows/ci.yml) roda em push para `main`
+e em pull requests: `npm ci`, lint, typecheck, testes, build, Chromium com dependências
+e E2E. Em caso de falha, publica `playwright-report/` e `test-results/` como artefato.
+
 ## Qualidade
 
 Antes de enviar alterações, execute:
@@ -162,7 +192,11 @@ npm.cmd run lint
 npm.cmd run typecheck
 npm.cmd run test:unit -- --run
 npm.cmd run build
+npm.cmd run format:check
 ```
+
+Para validar o fluxo completo como o CI, rode também `npm.cmd run test:e2e`. Nenhum
+texto de laudo deve aparecer em logs, artefatos ou capturas de tela.
 
 ## Documentação
 
