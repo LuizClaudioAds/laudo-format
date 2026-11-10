@@ -20,7 +20,7 @@ npm.cmd run test:e2e -- --project=chromium
 
 `playwright.config.ts` já faz o resto:
 
-- sobe `npm run dev` em `http://127.0.0.1:3000` com `AI_PROVIDER=mock` e
+- sobe `npm run dev` em `http://localhost:3000` com `AI_PROVIDER=mock` e
   `ALLOW_MOCK_AI=true`;
 - reutiliza servidor existente fora de CI (porta ocupada por outro env pode mascarar o
   teste: encerre o servidor antes);
@@ -62,7 +62,7 @@ Clipboard (Chromium):
 
 ```ts
 await context.grantPermissions(["clipboard-read", "clipboard-write"], {
-  origin: "http://127.0.0.1:3000",
+  origin: "http://localhost:3000",
 });
 await page.getByRole("button", { name: "Copiar HTML" }).click();
 const copied = await page.evaluate(() => navigator.clipboard.readText());
@@ -123,6 +123,8 @@ Preservação de conteúdo:
 
 ## Armadilhas
 
+- Use `http://localhost:3000`, nunca `127.0.0.1`: o Next.js 16 bloqueia recursos de dev
+  cross-origin e o app não hidrata (cliques e digitação não surtem efeito).
 - Editar texto após formatar limpa resultado e sugestões: não espere resultado antigo.
 - O aviso de privacidade volta a cada navegação (sem storage); reload mostra de novo.
 - Rate limit em memória por IP: 10 formatações/min e 5 ortografias/min. Cada spec que
