@@ -285,6 +285,11 @@ Os commits das etapas 12–20 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
     o rate limit em memória, e enviam `x-forwarded-for` único por cenário. Assim os
     limites (10/min e 5/min) não vazam entre testes e nenhum servidor HTTP real é
     necessário.
+23. **Skill local de E2E.** `.opencode/skills/laudo-e2e/SKILL.md` concentra comandos,
+    seletores, estado do modo mock e receitas da etapa 21 (clipboard, download,
+    `page.route`, overflow mobile) para evitar reler a documentação a cada sessão. A
+    skill é descoberta automaticamente pelo OpenCode, carregada sob demanda e não
+    altera o app nem os testes.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
@@ -396,6 +401,7 @@ src/lib/text.ts            helpers de texto
 src/lib/ai/                provider, schema, prompt, classify, spellcheck
 src/lib/spell/             validação e aplicação de sugestões ortográficas
 src/lib/format/            domínio, pipeline, heurística, render, validação, invariantes
+.opencode/skills/          skill local laudo-e2e (convenções Playwright)
 tests/unit/                testes unitários (pipeline, spell, apply, http e rate limit)
 tests/integration/         testes dos handlers de /api/format e /api/spellcheck
 tests/fixtures/            laudos fictícios
