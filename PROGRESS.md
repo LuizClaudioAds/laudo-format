@@ -2,10 +2,10 @@
 
 Atualizado em: 2026-11-10
 Branch: `main`
-Último commit de código: `6eba8a2 test(e2e): cover format, copy, privacy and mobile flows`
-Commit anterior: `a41a02c chore(skills): add local playwright e2e skill`
+Último commit de código: `3dcf817 ci: run lint, typecheck, unit, build and e2e`
+Commit anterior: `a59907b docs(skills): align e2e skill with localhost base url`
 Remoto: `origin` configurado; `main` sincronizada com `origin/main` até `0d00da5`.
-Os commits das etapas 21 e da skill local ainda não foram enviados ao remoto.
+Os commits das etapas 21–22 e da skill local ainda não foram enviados ao remoto.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -68,24 +68,23 @@ navegador real (etapa 21).
 
 ## 2. Etapa atual
 
-A etapa 21 (`test(e2e): cover format, copy, privacy and mobile flows`) está
-**implementada, verificada e commitada** em `6eba8a2`. Foi adicionado:
+A etapa 22 (`ci: run lint, typecheck, unit, build and e2e`) está **implementada,
+verificada localmente e commitada** em `3dcf817`. Foi adicionado:
 
-- `tests/e2e/workbench.spec.ts`: 6 testes rodados nos projetos `chromium` e `mobile`
-  (12 execuções). Cobrem carregar sample fictício e formatar; presets sincronizados
-  com o sample; avisos e metadados do modo mock; abas com navegação por teclado;
-  cópia do HTML via Clipboard API com permissão concedida; download de
-  `laudo-formatado.html` conferindo o conteúdo no disco; ausência de overflow
-  horizontal; aviso de privacidade visível, dispensável sem storage e visível após
-  reload; labels, `aria-live` e foco visível; ortografia em modo mock (aviso + estado
-  vazio); aplicar sugestão fictícia com `page.route` (texto corrigido e reformatação);
-  e ignorar sugestão sem alterar o texto.
-- `playwright.config.ts`: `baseURL` e `webServer.url` passaram de `127.0.0.1` para
-  `localhost`, porque o Next.js 16 bloqueia recursos de dev cross-origin em
-  `127.0.0.1` e o app não hidratava nos testes (cliques e edições não surtiam efeito).
+- `.github/workflows/ci.yml`: workflow `CI` disparado em push para `main` e em pull
+  requests, com `permissions: contents: read`, `concurrency` por ref (cancela apenas
+  PRs antigos) e `timeout-minutes: 20`.
+- Passos: checkout, setup-node lendo `.nvmrc` (22 → último 22.x) com cache npm,
+  `npm ci`, `lint`, `typecheck`, `test:unit -- --run`, `build`,
+  `npx playwright install --with-deps chromium`, `test:e2e` e upload de
+  `playwright-report/`/`test-results/` apenas em falha.
+- O job não usa segredos: o `webServer` do Playwright já define `AI_PROVIDER=mock` e
+  `ALLOW_MOCK_AI=true`; com `CI=true` ele não reutiliza servidor e usa retries 2,
+  workers 2 e relatório HTML.
 
-A skill local `laudo-e2e` foi commitada em `a41a02c`. O próximo passo é a etapa 22
-(CI com lint, typecheck, testes, build e E2E).
+A etapa 21 permanece em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. O workflow
+ainda não rodou no GitHub (os commits não foram enviados). O próximo passo é a etapa 23
+(README final e URL de demo).
 
 ## 3. Implementado e commitado
 
@@ -93,7 +92,8 @@ Commits existentes:
 
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
 `ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`,
-`33b76f3`, `7232103`, `3bc54e2`.
+`33b76f3`, `7232103`, `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`,
+`6eba8a2`, `d02266e`, `a59907b`, `3dcf817`.
 
 Arquivos implementados:
 
@@ -164,6 +164,9 @@ Arquivos implementados:
   mobile.
 - `playwright.config.ts`: `baseURL` e `webServer.url` em `localhost` para evitar o
   bloqueio de recursos de dev cross-origin do Next.js 16.
+- `.github/workflows/ci.yml`: CI em push para `main` e pull requests, com Node do
+  `.nvmrc`, `npm ci` com cache, lint, typecheck, testes unitários/integração, build,
+  Chromium do Playwright com dependências, E2E e artefatos em caso de falha.
 - `src/lib/format/pipeline.ts`: `formatReport()` une `segmentInput` → `classifyReport` →
   `renderReport`, mede `durationMs` e preenche `meta` com provider, modelo,
   `usedFallback`, caracteres, linhas e blocos.
@@ -216,19 +219,18 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 21 foi commitada em `6eba8a2` com `tests/e2e/workbench.spec.ts` e o ajuste de
-`playwright.config.ts`; a skill local foi commitada em `a41a02c`. As atualizações de
-continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
+A etapa 22 foi commitada em `3dcf817` com `.github/workflows/ci.yml`; a etapa 21 está
+em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de continuidade
+(`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
 
-Os commits das etapas 12–21 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
-`3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`) estão íntegros.
-`npm.cmd install` foi executado porque `node_modules` estava ausente; o
-`package-lock.json` foi revertido para não incluir o churn de `libc` introduzido pelo
-npm 11.
+Os commits das etapas 12–22 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+`3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
+`a59907b`, `3dcf817`) estão íntegros. `npm.cmd install` foi executado porque
+`node_modules` estava ausente; o `package-lock.json` foi revertido para não incluir o
+churn de `libc` introduzido pelo npm 11.
 
 ## 5. Ainda não implementado
 
-- `.github/workflows/ci.yml`.
 - URL de demo pública no README; o README em pt-BR já cobre setup, arquitetura e
   privacidade.
 - Configuração da Vercel e headers de segurança no `next.config.ts`.
@@ -317,14 +319,18 @@ npm 11.
     principal e aplicar) para caber no limite de 10/min por IP; a ortografia real é
     chamada uma vez por projeto e os demais cenários usam `page.route`. Se o limite for
     atingido, o teste falha com `429`, não com erro de UI.
+26. **CI em job único.** Um só job no Ubuntu executa lint, typecheck, testes, build e
+    E2E, o que mantém o feedback simples e evita duplicar instalação. A versão do Node
+    vem do `.nvmrc` (22 → último 22.x, compatível com `jsdom`/`lint-staged`), o cache
+    do npm é habilitado, e `npm ci` valida o lockfile. Playwright instala somente
+    `chromium --with-deps`; relatórios e traces sobem como artefato apenas em falha.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push concluído até a etapa 20.** `git push origin main` publicou a branch em
-  2026-11-08; os commits `f023240` (etapa 19), `1151218` (etapa 20) e `79b8c22`
-  (documentação) estão no remoto. O remoto é
-  `https://github.com/LuizClaudioAds/laudo-format.git`. Se a credencial expirar, repita
-  o push em um terminal interativo e não deixe o comando pendurado em scripts.
+- **Push pendente.** O remoto está em `0d00da5` (etapa 20). Os commits `a41a02c`,
+  `6eba8a2`, `d02266e`, `a59907b` e `3dcf817` (etapas 21–22 e skill) são locais. O
+  remoto é `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial
+  expirar, repita o push em terminal interativo.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
   `report-preview`, `suggestions-panel` e `privacy-notice` continuam sem testes de
   componente isolados.
@@ -346,11 +352,12 @@ npm 11.
   não aceita o segment config `runtime`; o padrão já é Node.js.
 - **Vitest warnings.** Config ESM/CJS e `vite-tsconfig-paths`; não falham. Limpeza
   opcional.
-- **Playwright.** Chromium e FFmpeg instalados localmente; CI ainda precisa instalar
-  browsers e dependências do sistema (etapa 22).
+- **Playwright.** Chromium e FFmpeg instalados localmente; o workflow instala
+  `chromium --with-deps` no Ubuntu, mas ainda não rodou no GitHub.
 - **Node local 22.14.0.** `jsdom@31` pede `^22.22.2` e `lint-staged@17.6` pede
   `>=22.22.1`; o `npm install` emite `EBADENGINE`, mas lint, typecheck, testes, build e
-  E2E passaram. Atualizar o Node antes de configurar o CI.
+  E2E passaram. O CI usa o último 22.x via `.nvmrc`; atualizar o Node local com
+  `nvm use` remove os avisos.
 - **Sem chave Google/Upstash local.** O comportamento esperado é fallback heurístico.
 - **`next.config.ts`** mantém `cacheComponents` e `partialPrefetching` do scaffold e
   ainda não tem headers de segurança.
@@ -359,21 +366,20 @@ npm 11.
 
 ## 8. Próxima tarefa exata
 
-### 8.1 Iniciar a etapa 22
+### 8.1 Iniciar a etapa 23
 
-Etapa 22 — `ci: run lint, typecheck, unit, build and e2e`:
+Etapa 23 — `docs: add readme with demo, architecture and setup`:
 
-- Criar `.github/workflows/ci.yml` com `actions/checkout`, `actions/setup-node`
-  (Node 24 ou `>=22.22`, para evitar os avisos de engine) e `npm ci` com cache do npm.
-- Rodar `npm run lint`, `npm run typecheck`, `npm run test:unit -- --run` e
-  `npm run build`; em seguida instalar o browser com
-  `npx playwright install --with-deps chromium` e rodar `npm run test:e2e` com `CI=1`
-  (retries 2 e workers 2 já vêm do `playwright.config.ts`).
-- Não usar segredos no job: o `webServer` do E2E define `AI_PROVIDER=mock` e
-  `ALLOW_MOCK_AI=true`; com `CI=1` o servidor não é reutilizado.
-- Não adicionar deploy, README ou headers de segurança (etapas 23–24).
+- Revisar o `README.md` em pt-BR contra o código final: setup com `npm.cmd`, variáveis,
+  limites, privacidade, arquitetura resumida e comandos de teste.
+- Adicionar seção de testes e CI (`npm.cmd run test:unit`, `npm.cmd run test:e2e`,
+  `npx.cmd playwright install chromium`) e explicar que o E2E usa `AI_PROVIDER=mock`.
+- Deixar um lugar explícito para a URL de demo pública; se o deploy ainda não existir,
+  registrar que a URL será adicionada na etapa 24, sem inventar link.
+- Não incluir dados reais de paciente, payloads, chaves ou prints com conteúdo real.
 
-Entregar apenas a etapa 22 neste ciclo.
+Entregar apenas a etapa 23 neste ciclo; deploy/Vercel e headers de segurança ficam para
+a etapa 24.
 
 ## 9. Comandos de verificação
 

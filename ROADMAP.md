@@ -76,13 +76,13 @@ Legenda:
 - [x] Testes de integração das rotas com provider mock.
 - [x] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
 - [x] Testes E2E de formatação, cópia, privacidade e mobile.
-- [ ] Instalar browsers do Playwright no ambiente de CI.
+- [x] Instalar browsers do Playwright no ambiente de CI.
 - [ ] Manter lint, typecheck, testes e build verdes em cada commit.
 
 ## 7. Documentação e publicação
 
 - [ ] README final com URL de demo, setup, arquitetura e privacidade.
-- [ ] CI com lint, typecheck, testes, build e E2E.
+- [x] CI com lint, typecheck, testes, build e E2E.
 - [ ] Configuração de deploy na Vercel e headers de segurança.
 - [ ] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.
 - [x] Verificação final antes do push.
@@ -113,6 +113,6 @@ Legenda:
 | 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | concluído (`f023240`) |
 | 20  | `test(api): cover format and spellcheck routes with mock provider` | concluído (`1151218`) |
 | 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | concluído (`6eba8a2`) |
-| 22  | `ci: run lint, typecheck, unit, build and e2e`                     | pendente              |
+| 22  | `ci: run lint, typecheck, unit, build and e2e`                     | concluído (`3dcf817`) |
 | 23  | `docs: add readme with demo, architecture and setup`               | pendente              |
 | 24  | `chore: add vercel deployment configuration and env docs`          | pendente              |
