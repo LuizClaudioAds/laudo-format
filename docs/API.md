@@ -14,6 +14,10 @@ Todos os endpoints usam JSON, o runtime Node.js e `Cache-Control: no-store`.
 | `X-RateLimit-Remaining`          | response     | Requisições restantes          |
 | `X-RateLimit-Reset`              | response     | Timestamp de reset             |
 
+As respostas também carregam os headers globais de segurança definidos em
+`next.config.ts` (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`,
+`Permissions-Policy` e CSP mínima com `frame-ancestors 'none'`).
+
 ## POST /api/format
 
 Formata um laudo bruto.

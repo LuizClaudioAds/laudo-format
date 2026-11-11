@@ -158,15 +158,19 @@ O resultado inclui `usedFallback: true` e um warning para a UI.
 | Vazamento de chave  | A chave fica apenas no servidor                        |
 | Dados sensíveis     | Sem persistência, logs sem texto, aviso de privacidade |
 | IP pessoal          | Hash com salt antes de usar no rate limit              |
-| Clickjacking        | `X-Frame-Options: DENY`                                |
+| Clickjacking        | `X-Frame-Options: DENY` + CSP `frame-ancestors 'none'` |
 | MIME sniffing       | `X-Content-Type-Options: nosniff`                      |
+| Referrer            | `Referrer-Policy: strict-origin-when-cross-origin`     |
+| Features do browser | `Permissions-Policy` restritiva                        |
+
+Os headers são aplicados globalmente por `next.config.ts`; o HSTS vem da Vercel.
 
 ## 8. Rate limit
 
 - Upstash Redis quando configurado.
 - Fallback em memória por instância em desenvolvimento.
 - Chave: `kind + hash(IP + salt)`.
-- Janela deslizante de 1 minuto.
+- Janela fixa de 1 minuto (`Ratelimit.fixedWindow`).
 - Formatação: 10/min. Ortografia: 5/min.
 - Resposta 429 com `Retry-After` e `X-RateLimit-*`.
 
@@ -187,8 +191,8 @@ O resultado inclui `usedFallback: true` e um warning para a UI.
 
 ## 11. Observabilidade
 
-- Logs apenas com `requestId`, status, duração, contagem de caracteres e modo
-  (IA/fallback).
-- Nunca logar o texto do laudo.
-- Erros inesperados retornam mensagem genérica e `requestId`.
-- O `requestId` também é enviado no header `x-request-id`.
+- A aplicação não registra o texto do laudo nem o payload das requisições.
+- Cada resposta inclui `x-request-id` para correlacionar com os logs da plataforma.
+- Erros inesperados retornam mensagem genérica e o mesmo `requestId`.
+- Se logs forem adicionados, devem conter apenas `requestId`, status, duração, contagem
+  de caracteres e modo (IA/fallback), nunca conteúdo clínico.

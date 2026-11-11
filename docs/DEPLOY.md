@@ -3,10 +3,13 @@
 ## 1. Pré-requisitos
 
 - Conta na [Vercel](https://vercel.com) (plano Hobby).
+- Node.js 22 (o `.nvmrc` fixa a major; a Vercel e o CI usam o último 22.x).
 - Chave do [Google AI Studio](https://aistudio.google.com/app/apikey) para o Gemini.
 - Conta gratuita no [Upstash](https://upstash.com) para rate limit distribuído
   (recomendado).
 - Repositório no GitHub: <https://github.com/LuizClaudioAds/laudo-format>.
+
+O demo atual está em <https://laudo-format.vercel.app>.
 
 ## 2. Importar na Vercel
 
@@ -36,7 +39,13 @@ Preview e Development:
 | `NEXT_PUBLIC_APP_URL`          | não         | `https://...`      | URL pública               |
 
 > A ausência da chave do Gemini não quebra o deploy: a aplicação usa o classificador
-> heurístico e exibe “Modo básico”. Ainda assim, configure a chave para o demo completo.
+> heurístico e responde `usedFallback: true`. Ainda assim, configure a chave para o demo
+> completo. Nunca defina `ALLOW_MOCK_AI=true` em produção: o mock é exclusivo de
+> desenvolvimento/teste e não deve ficar acessível em URL pública.
+
+Use um `IP_HASH_SALT` aleatório e diferente por ambiente. `RATE_LIMIT_FORMAT` e
+`RATE_LIMIT_SPELL` só precisam ser definidas se você quiser outro limite além de
+10/min e 5/min.
 
 ## 4. Gemini
 
@@ -60,14 +69,52 @@ Após configurar as variáveis:
 
 1. Clique em **Deploy**.
 2. Aguarde o build.
-3. Abra a URL de produção.
+3. Abra a URL de produção (<https://laudo-format.vercel.app>).
 4. Teste:
    - carregar um exemplo;
    - formatar;
    - copiar o HTML;
    - solicitar sugestões ortográficas;
    - verificar o aviso de privacidade.
-5. Copie a URL para o README (`NEXT_PUBLIC_APP_URL` opcional).
+5. Atualize a URL no README se o domínio mudar.
+
+### 6.1 Headers de segurança
+
+`next.config.ts` aplica os headers abaixo em todas as rotas (`/(.*)`):
+
+| Header                    | Valor                                                          |
+| ------------------------- | -------------------------------------------------------------- |
+| `X-Content-Type-Options`  | `nosniff`                                                      |
+| `Referrer-Policy`         | `strict-origin-when-cross-origin`                              |
+| `X-Frame-Options`         | `DENY`                                                         |
+| `Permissions-Policy`      | `camera=(), microphone=(), geolocation=(), browsing-topics=()` |
+| `Content-Security-Policy` | `frame-ancestors 'none'; base-uri 'self'; form-action 'self'`  |
+
+`Strict-Transport-Security` é adicionado pela Vercel e não é duplicado pela aplicação.
+As rotas de API continuam enviando `Cache-Control: no-store` e `x-request-id`.
+
+Verificação local ou em produção:
+
+```powershell
+curl.exe -sI https://laudo-format.vercel.app/ |
+  Select-String "x-content-type-options|referrer-policy|x-frame-options|permissions-policy|content-security-policy"
+```
+
+### 6.2 Checklist pós-deploy
+
+- `GET /` responde 200 com `lang="pt-BR"`, título, seletor de exemplos e aviso de
+  privacidade.
+- `POST /api/format` com texto fictício responde 200, retorna `html` apenas com
+  `<b>`/`<i>`/`<br>` e traz `cache-control: no-store`, `x-request-id` e
+  `x-ratelimit-*`.
+- `POST /api/spellcheck` com texto fictício responde 200 (com ou sem sugestões).
+- Headers de segurança presentes na página e nas APIs.
+- `ALLOW_MOCK_AI` ausente ou `false`.
+- Nenhum dado real de paciente em testes, prints ou issues.
+
+Validação de 2026-11-11 no domínio atual: `/`, `/api/format` e `/api/spellcheck`
+responderam 200; a IA caiu no fallback heurístico (`usedFallback: true`) e os headers de
+segurança ainda não estavam presentes (foram adicionados neste ciclo).
 
 ## 7. Preview deployments
 

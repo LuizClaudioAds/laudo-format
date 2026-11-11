@@ -11,8 +11,11 @@ texto: ela apenas indica IDs de linhas, tipos de bloco e spans de itálico.
 
 ## Demo
 
-A URL pública do demo será adicionada após a configuração de deploy (etapa 24 do
-[ROADMAP.md](ROADMAP.md)). Enquanto isso, rode localmente com `npm.cmd run dev`.
+<https://laudo-format.vercel.app>
+
+O demo público usa apenas laudos fictícios. Se a IA não estiver disponível (chave
+ausente, quota esgotada ou timeout), a aplicação responde com o classificador
+heurístico e sinaliza `usedFallback: true` na interface.
 
 ## Funcionalidades
 
