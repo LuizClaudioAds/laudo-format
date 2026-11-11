@@ -48,7 +48,7 @@ Se uma tarefa parecer exigir violar qualquer invariante, pare e registre a dúvi
 ## 2. Stack e comandos
 
 - Next.js `16.4.5` (App Router, Turbopack), React `19.3`, TypeScript strict, Tailwind 4.
-- AI SDK `7` com `@ai-sdk/google` (`gemini-2.5-flash` por padrão), Zod `4`.
+- AI SDK `7` com `@ai-sdk/google` (`gemini-3.8-flash` por padrão), Zod `4`.
 - Upstash rate limit (opcional), Vitest 5, Playwright 1.65.
 - Windows/PowerShell: `npm.ps1` é bloqueado. Use `npm.cmd`:
 

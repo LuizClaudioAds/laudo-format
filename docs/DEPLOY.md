@@ -28,7 +28,7 @@ Preview e Development:
 | Variável                       | Obrigatória | Exemplo            | Descrição                 |
 | ------------------------------ | ----------- | ------------------ | ------------------------- |
 | `AI_PROVIDER`                  | sim         | `google`           | Provider de IA            |
-| `AI_MODEL`                     | sim         | `gemini-2.5-flash` | Modelo usado              |
+| `AI_MODEL`                     | sim         | `gemini-3.8-flash` | Modelo usado              |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | sim para IA | `AIza...`          | Chave do Google AI Studio |
 | `UPSTASH_REDIS_REST_URL`       | recomendado | `https://...`      | URL do Redis              |
 | `UPSTASH_REDIS_REST_TOKEN`     | recomendado | `AX...`            | Token do Redis            |
@@ -51,7 +51,8 @@ Use um `IP_HASH_SALT` aleatório e diferente por ambiente. `RATE_LIMIT_FORMAT` e
 
 1. Crie uma chave no Google AI Studio.
 2. Adicione em `GOOGLE_GENERATIVE_AI_API_KEY`.
-3. Ajuste `AI_MODEL` se necessário. O default do projeto é `gemini-2.5-flash`.
+3. Ajuste `AI_MODEL` se necessário. O default do projeto é `gemini-3.8-flash`;
+   `gemini-2.5-flash` foi aposentado para novas contas.
 4. O free tier tem quotas e pode usar dados enviados para melhoria do produto.
    **Não use dados reais de pacientes no demo público.** Para uso clínico real, é
    necessário um plano/contrato compatível com PHI e revisão jurídica.
@@ -102,6 +103,7 @@ curl.exe -sI https://laudo-format.vercel.app/ |
 
 ### 6.2 Checklist pós-deploy
 
+- `GET /api/health` responde 200 com `googleConfigured: true` e o `aiModel` esperado.
 - `GET /` responde 200 com `lang="pt-BR"`, título, seletor de exemplos e aviso de
   privacidade.
 - `POST /api/format` com texto fictício responde 200, retorna `html` apenas com

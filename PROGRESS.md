@@ -388,7 +388,7 @@ Os commits das etapas 12–24 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
   integração, mas os caminhos de sucesso do provider (chamada real e parse da resposta)
   continuam sem teste; os thresholds globais passam por causa do domínio.
 - **Metadados de mock.** Em modo mock, `provider` vira `mock`, mas `model` continua
-  vindo de `AI_MODEL` (por exemplo, `gemini-2.5-flash`). Normalizar para `heuristic`
+  vindo de `AI_MODEL` (por exemplo, `gemini-3.8-flash`). Normalizar para `heuristic`
   é uma melhoria opcional.
 - **`classifyReport` engole o erro original.** Isso é intencional para não vazar
   detalhes do provedor, mas dificulta diagnóstico. Logs futuros devem ser sanitizados

@@ -35,7 +35,7 @@ heurístico e sinaliza `usedFallback: true` na interface.
 - Next.js 16.4.5 (App Router, Turbopack) e React 19.3.
 - TypeScript em modo `strict`.
 - Tailwind CSS 4.
-- Vercel AI SDK 7 com `@ai-sdk/google` (`gemini-2.5-flash` por padrão).
+- Vercel AI SDK 7 com `@ai-sdk/google` (`gemini-3.8-flash` por padrão).
 - Zod 4.
 - Upstash Redis opcional para rate limit distribuído.
 - Vitest 5 e Playwright 1.65.
@@ -68,7 +68,7 @@ abaixo.
    | Variável                       | Descrição                                           |
    | ------------------------------ | --------------------------------------------------- |
    | `AI_PROVIDER`                  | `google` (padrão) ou `mock`                         |
-   | `AI_MODEL`                     | Modelo usado (padrão: `gemini-2.5-flash`)           |
+   | `AI_MODEL`                     | Modelo usado (padrão: `gemini-3.8-flash`)           |
    | `GOOGLE_GENERATIVE_AI_API_KEY` | Chave do Google AI Studio                           |
    | `UPSTASH_REDIS_REST_URL`       | URL do Redis do Upstash (opcional)                  |
    | `UPSTASH_REDIS_REST_TOKEN`     | Token do Redis do Upstash (opcional)                |

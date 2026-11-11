@@ -50,7 +50,7 @@ Formata um laudo bruto.
   "warnings": [],
   "meta": {
     "provider": "google",
-    "model": "gemini-2.5-flash",
+    "model": "gemini-3.8-flash",
     "usedFallback": false,
     "durationMs": 1840,
     "characters": 1240,
@@ -127,7 +127,7 @@ Sugere correções ortográficas sem alterar o texto.
   "warnings": [],
   "meta": {
     "provider": "google",
-    "model": "gemini-2.5-flash",
+    "model": "gemini-3.8-flash",
     "usedFallback": false,
     "durationMs": 900
   }
@@ -163,6 +163,25 @@ minuto.
 
 Quando o Upstash não está configurado, o fallback em memória é usado por instância.
 Em produção, recomenda-se configurar Upstash para um limite consistente.
+
+## GET /api/health
+
+Diagnóstico público, sem segredos e sem chamada ao provedor de IA. Serve para conferir
+o que o runtime do deploy está enxergando.
+
+```json
+{
+  "ok": true,
+  "aiProvider": "google",
+  "aiModel": "gemini-3.8-flash",
+  "googleConfigured": true,
+  "upstashConfigured": true,
+  "mockAllowed": false
+}
+```
+
+A resposta inclui `Cache-Control: no-store` e `x-request-id`; nunca expõe chave, token,
+URL de Redis ou o texto do laudo.
 
 ## Exemplo com curl
 
