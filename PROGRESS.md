@@ -1,10 +1,10 @@
 # Progresso — laudo-format
 
-Atualizado em: 2026-11-10
+Atualizado em: 2026-11-11
 Branch: `main`
-Último commit: `39d597f docs: record successful push and ci run`
-Último commit de código: `829accc fix(ci): generate next types before typecheck`
-Remoto: `origin` publicado até `39d597f`; CI do GitHub verde no run #3.
+Último commit de código: `9f2ba5c chore(config): add security headers and hide next.js version`
+Commit anterior: `4d1796e docs: add demo url and production deploy notes`
+Remoto: `origin` publicado; demo em <https://laudo-format.vercel.app>.
 
 ## 0. Regra de trabalho para novas sessões
 
@@ -20,16 +20,17 @@ Remoto: `origin` publicado até `39d597f`; CI do GitHub verde no run #3.
 
 ## 1. Verificação executada nesta sessão
 
-| Comando                          | Resultado                                                                          |
-| -------------------------------- | ---------------------------------------------------------------------------------- |
-| `npm.cmd run test:unit -- --run` | 11 arquivos, **96 testes passando**                                                |
-| `npm.cmd run test:coverage`      | não executado nesta sessão; última medição: 92,74% statements, 88,01% branches     |
-| `npm.cmd run lint`               | passou                                                                             |
-| `npm.cmd run typecheck`          | passou                                                                             |
-| `npm.cmd run format:check`       | passou                                                                             |
-| `npm.cmd run build`              | passou; `/` e `/_not-found` estáticas; `/api/format` e `/api/spellcheck` dinâmicas |
-| `npm.cmd run test:e2e`           | **12 testes passando** (6 specs × chromium/mobile) em ~22 s                        |
-| CI no GitHub (run #3)            | **sucesso** em `39d597f`: lint, typecheck, testes, build e E2E                     |
+| Comando                          | Resultado                                                                        |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `npm.cmd run test:unit -- --run` | 11 arquivos, **96 testes passando**                                              |
+| `npm.cmd run test:coverage`      | não executado nesta sessão; última medição: 92,74% statements, 88,01% branches   |
+| `npm.cmd run lint`               | passou                                                                           |
+| `npm.cmd run typecheck`          | passou (`next typegen && tsc --noEmit`)                                          |
+| `npm.cmd run format:check`       | passou                                                                           |
+| `npm.cmd run build`              | passou em 2026-11-10; em 2026-11-11 falhou por OOM nativo local (validado no CI) |
+| `npm.cmd run test:e2e`           | 12 passando em 2026-11-10 (~22 s); em 2026-11-11 validado pelo CI                |
+| CI no GitHub (run #5)            | **sucesso** em `4d1796e`: lint, typecheck, testes, build e E2E                   |
+| Deploy na Vercel                 | headers de segurança ativos; `/api/format` 200 com `no-store` e rate limit       |
 
 Avisos não bloqueantes do Vitest:
 
@@ -68,31 +69,30 @@ navegador real (etapa 21).
 
 ## 2. Etapa atual
 
-A etapa 23 (`docs: add readme with demo, architecture and setup`) está
-**implementada e commitada** em `7f3667d`. O `README.md` passou a cobrir:
+A etapa 24 (`chore(config): add security headers and hide next.js version` +
+`docs: add demo url and production deploy notes`) está **implementada e publicada**.
+Foi entregue:
 
-- seção **Demo** explícita, sem inventar link: a URL pública entra na etapa 24;
-- requisitos com Node 22 lido do `.nvmrc`;
-- tabela de comandos incluindo `npx.cmd playwright install chromium`;
-- seção **Testes e CI** com os 96 testes unitários/integração, 6 cenários E2E em
-  `chromium`/`mobile`, instruções de instalação do browser, uso de `localhost`,
-  `AI_PROVIDER=mock`, rate limit e o que o workflow publica em falha;
-- seção **Qualidade** com `format:check` e a recomendação de rodar o E2E antes do push.
+- `next.config.ts`: headers globais em `/(.*)` — `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`,
+  `Permissions-Policy` restritiva e CSP mínima
+  (`frame-ancestors 'none'; base-uri 'self'; form-action 'self'`), além de
+  `poweredByHeader: false`. `cacheComponents` e `partialPrefetching` foram preservados.
+- README: seção **Demo** aponta para <https://laudo-format.vercel.app>.
+- `docs/DEPLOY.md`: Node 22, variáveis de produção, headers esperados, checklist
+  pós-deploy e validação do domínio em 2026-11-11.
+- `docs/ARCHITECTURE.md` e `docs/API.md`: corrigidos contra o código (janela fixa,
+  observabilidade real) e com os headers globais documentados.
 
-A etapa 22 permanece em `3dcf817`. A URL de demo e a configuração da Vercel ficam para a
-etapa 24.
+O deploy de 2026-11-11 respondeu 200 em `/`, `/api/format` e `/api/spellcheck`, com
+fallback heurístico (`usedFallback: true`). Após o redeploy com a etapa 24, os headers
+`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` e
+`Content-Security-Policy` estão ativos, `X-Powered-By` sumiu e a API mantém
+`Cache-Control: no-store`, `x-request-id` e `x-ratelimit-*`.
 
-Depois do commit da etapa 23, o E2E passou a rodar contra o build de produção
-(`27b4c1b`): o `webServer` executa `npm run build && npm run start` e o timeout de
-`expect` subiu para 15 s. Motivo: duas execuções locais falharam de forma diferente com
-o dev server do Turbopack (processo do Chromium encerrado e `page.goto` estourando 90 s
-por compilação sob carga). Com o servidor de produção, 12/12 passaram em duas execuções
-seguidas (~22 s cada).
-
-O primeiro run do CI (`b7bb50f`, run #1) falhou no passo de typecheck porque
-`.next/types` não existe em checkout limpo e `src/app/layout.tsx` usa o tipo global
-`LayoutProps`. O commit `829accc` mudou o script `typecheck` para
-`next typegen && tsc --noEmit`; o próximo push dispara um novo run.
+Validação local: lint, typecheck, 96 testes e `format:check` passaram. `next build`
+(Turbopack e webpack) sofreu OOM nativo na máquina local (≈0,7–1,1 GB livres de 7,9 GB),
+então build e E2E ficam a cargo do CI e do deploy da Vercel.
 
 ## 3. Implementado e commitado
 
@@ -101,7 +101,9 @@ Commits existentes:
 `7fc06f5`, `1d9e2c2`, `d87217f`, `4b79573`, `ed44ff8`, `aafd77a`, `4e70a5e`,
 `ab7f9e7`, `16f94e8`, `ac6f905`, `14e7066`, `79bdc5a`, `a431fa1`, `e749a4a`,
 `33b76f3`, `7232103`, `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`,
-`6eba8a2`, `d02266e`, `a59907b`, `3dcf817`.
+`6eba8a2`, `d02266e`, `a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`,
+`27b4c1b`, `b7bb50f`, `829accc`, `1c2c436`, `39d597f`, `6037c1c`, `9f2ba5c`,
+`4d1796e`.
 
 Arquivos implementados:
 
@@ -225,6 +227,8 @@ Arquivos implementados:
   qualidade e links da documentação.
 - `package.json`: o script `typecheck` executa `next typegen` antes de `tsc --noEmit`
   para gerar os tipos de rota/layout em checkout limpo.
+- `next.config.ts`: `cacheComponents`, `partialPrefetching`, `poweredByHeader: false` e
+  `headers()` com CSP mínima e headers de segurança em `/(.*)`.
 - `.env.example`, `vitest.config.ts`, `playwright.config.ts`, configs de lint,
   Prettier, commitlint, Husky e lint-staged.
 - `SPEC.md` (movido de `docs/SPEC.md` nesta sessão), `docs/RULES.md`,
@@ -233,22 +237,25 @@ Arquivos implementados:
 
 ## 4. Nenhum código pendente de commit
 
-A etapa 23 foi commitada em `7f3667d` com o `README.md` e atualizada em `27b4c1b`
-(E2E contra build de produção); a etapa 22 está em `3dcf817`, a etapa 21 em `6eba8a2` e
-a skill local em `a41a02c`/`a59907b`. As atualizações de continuidade
-(`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
+A etapa 24 foi commitada em `9f2ba5c` (headers) e `4d1796e` (README, DEPLOY,
+ARCHITECTURE e API); a etapa 23 está em `7f3667d`/`27b4c1b`, a etapa 22 em `3dcf817`, a
+etapa 21 em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de
+continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
 
-Os commits das etapas 12–23 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
+Os commits das etapas 12–24 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
 `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
 `a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`, `27b4c1b`, `b7bb50f`,
-`829accc`) estão íntegros. `npm.cmd install` foi executado porque `node_modules` estava
-ausente; o `package-lock.json` foi revertido para não incluir o churn de `libc`
-introduzido pelo npm 11.
+`829accc`, `1c2c436`, `39d597f`, `6037c1c`, `9f2ba5c`, `4d1796e`) estão íntegros.
 
-## 5. Ainda não implementado
+## 5. Pós-roadmap (opcional)
 
-- URL de demo pública no README (depende do deploy, etapa 24).
-- Configuração da Vercel e headers de segurança no `next.config.ts`.
+- Proteger `main` no GitHub exigindo o check de CI verde.
+- Configurar `GOOGLE_GENERATIVE_AI_API_KEY` e Upstash na Vercel para sair do fallback
+  heurístico e ter rate limit distribuído.
+- Ampliar a cobertura de `src/lib/ai` (caminho real do provider, sem mock).
+- Adicionar testes de componente para preview, ortografia e aviso de privacidade.
+- Atualizar o Node local para o último 22.x (`nvm use`) e remover os avisos
+  `EBADENGINE`.
 
 ## 6. Decisões técnicas tomadas
 
@@ -352,11 +359,20 @@ introduzido pelo npm 11.
     gerado pelo Next; em checkout limpo ele não existe e o `tsc` falhava no CI. O script
     `typecheck` passou a rodar `next typegen && tsc --noEmit`, o que funciona sem build
     completo e mantém o gate rápido.
+30. **Headers globais com CSP mínima.** `headers()` aplica os headers de segurança em
+    `/(.*)` e a CSP contém apenas `frame-ancestors 'none'`, `base-uri 'self'` e
+    `form-action 'self'`, sem `script-src`, para não quebrar o runtime/inline scripts do
+    Next. HSTS fica a cargo da Vercel e `poweredByHeader: false` remove a versão do
+    framework.
+31. **Build/E2E validados no CI.** A máquina local ficou com ≈0,7–1,1 GB livres e
+    `next build` (Turbopack e webpack) falhou com OOM nativo. Lint, typecheck, testes e
+    formatação continuam rodando localmente; build e E2E são gates do CI, e o deploy da
+    Vercel confirma o runtime de produção.
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push.** `main` foi publicada em 2026-11-10 com as etapas 21–23, a skill local e o
-  fix do typegen (HEAD `39d597f`). Os runs #2 e #3 do CI passaram. O remoto é
+- **Push.** `main` foi publicada em 2026-11-11 com a etapa 24. O CI roda em push/PR e
+  a Vercel faz o deploy automático. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial expirar, repita
   o push em terminal interativo.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
@@ -364,8 +380,8 @@ introduzido pelo npm 11.
   componente isolados.
 - **Dispensa do aviso não persiste.** Recarregar a página mostra o aviso novamente;
   isso é intencional para não usar storage.
-- **README em pt-BR com seção de demo pendente.** A URL pública será adicionada na
-  etapa 24 (deploy).
+- **Demo publicada.** O README aponta para <https://laudo-format.vercel.app>; o deploy
+  usa a integração Git da Vercel.
 - **Rate limit em memória sem Upstash.** Em produção com várias instâncias o limite só
   é consistente com Upstash configurado (ADR 0004).
 - **Cobertura da camada de IA.** `src/lib/ai` subiu para 71,11% com os testes de
@@ -388,39 +404,32 @@ introduzido pelo npm 11.
   E2E passaram. O CI usa o último 22.x via `.nvmrc`; atualizar o Node local com
   `nvm use` remove os avisos.
 - **Sem chave Google/Upstash local.** O comportamento esperado é fallback heurístico.
-- **`next.config.ts`** mantém `cacheComponents` e `partialPrefetching` do scaffold e
-  ainda não tem headers de segurança.
+- **`next.config.ts`** mantém `cacheComponents` e `partialPrefetching` e agora aplica
+  headers de segurança globalmente, com `poweredByHeader: false`.
+- **Build local limitado por RAM.** Com ≈0,7–1,1 GB livres de 7,9 GB, `next build`
+  (Turbopack e webpack) falhou com OOM nativo (`Zone Allocation failed`); lint,
+  typecheck, testes e `format:check` passam. Valide build/E2E pelo CI até liberar
+  memória na máquina.
 - **`docs/SPEC.md` foi movido para `SPEC.md`** em sessão anterior; os links internos
   foram ajustados para `docs/RULES.md` e `docs/API.md`.
 
-## 8. Próxima tarefa exata
+## 8. Próximos passos
 
-### 8.0 Estado ao retomar (2026-11-11)
+### 8.0 Estado ao retomar
 
-- Árvore limpa, HEAD `39d597f` e CI verde; nenhum trabalho pendente de commit.
-- Etapas 21 (E2E), 22 (CI) e 23 (README) concluídas e publicadas; a skill local
-  `laudo-e2e` está disponível para carregar sob demanda.
-- Se `node_modules` não existir, rode `npm.cmd install`; o Chromium já está instalado e o
-  E2E compila e sobe o servidor de produção sozinho.
-- Próxima tarefa: etapa 24 (abaixo). Não iniciar outra etapa antes de concluí-la.
+- Roadmap concluído (etapas 1–24); `main` publicada e deploy automático na Vercel.
+- Demo: <https://laudo-format.vercel.app>.
+- CI roda em push para `main` e em pull requests; build e E2E são validados no Ubuntu.
+- Nenhuma tarefa obrigatória pendente. As melhorias opcionais estão na seção 5.
 
-### 8.1 Iniciar a etapa 24
+### 8.1 Continuidade sugerida
 
-Etapa 24 — `chore: add vercel deployment configuration and env docs`:
-
-- Adicionar headers de segurança em `next.config.ts` sem quebrar `cacheComponents`:
-  `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
-  `X-Frame-Options: DENY` (ou `frame-ancestors 'none'` em CSP, se adotada) e
-  `Permissions-Policy` restritiva; manter as rotas dinâmicas e o build passando.
-- Documentar em `docs/DEPLOY.md` as variáveis de produção: `AI_PROVIDER=google`,
-  `GOOGLE_GENERATIVE_AI_API_KEY`, `IP_HASH_SALT`, Upstash opcional, limites e Node 22.
-  Nunca habilitar `ALLOW_MOCK_AI=true` em produção.
-- Configurar o projeto na Vercel, validar o build e o funcionamento das duas rotas e só
-  então adicionar a URL pública ao `README.md` (substituindo o texto da seção Demo).
-- Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final; nenhum dado real
-  de paciente no demo.
-
-Entregar apenas a etapa 24 neste ciclo.
+1. Confirmar no domínio os headers após o redeploy e o checklist de `docs/DEPLOY.md`.
+2. Configurar `GOOGLE_GENERATIVE_AI_API_KEY`, `IP_HASH_SALT` e Upstash na Vercel para
+   sair do fallback e ter rate limit distribuído.
+3. Proteger `main` exigindo o check de CI.
+4. Opcional: ampliar cobertura de `src/lib/ai` e testes de componente.
+5. Manter a regra de uma mudança lógica por commit e nenhum dado real de paciente.
 
 ## 9. Comandos de verificação
 
@@ -435,6 +444,10 @@ npm.cmd run test:e2e
 
 O `test:e2e` compila e sobe o servidor de produção automaticamente; o CI repete o
 typecheck (com `next typegen`), os testes, o build e o E2E.
+
+Em máquinas com pouca memória, `next build` pode falhar por OOM nativo
+(`Zone Allocation failed`). Nesse caso valide pelo run do CI e não altere o código por
+causa do ambiente.
 
 Antes de push:
 

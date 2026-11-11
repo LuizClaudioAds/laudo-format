@@ -77,43 +77,43 @@ Legenda:
 - [x] Testes de limite de payload, erros, rate limit e fallback no nível da rota (unitários de `http`/`rate-limit` concluídos na etapa 14).
 - [x] Testes E2E de formatação, cópia, privacidade e mobile.
 - [x] Instalar browsers do Playwright no ambiente de CI.
-- [ ] Manter lint, typecheck, testes e build verdes em cada commit.
+- [x] Manter lint, typecheck, testes e build verdes em cada commit.
 
 ## 7. Documentação e publicação
 
 - [x] README com setup, arquitetura, privacidade, testes e CI.
-- [ ] Adicionar URL de demo pública ao README após o deploy.
+- [x] Adicionar URL de demo pública ao README após o deploy.
 - [x] CI com lint, typecheck, testes, build e E2E.
-- [ ] Configuração de deploy na Vercel e headers de segurança.
-- [ ] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.
+- [x] Configuração de deploy na Vercel e headers de segurança.
+- [x] Revisar `docs/ARCHITECTURE.md` e `docs/API.md` contra o código final.
 - [x] Verificação final antes do push.
 - [x] `git push -u origin main` (concluído em 2026-11-08).
 
 ## Sequência de commits planejada
 
-| #   | Commit                                                             | Status                |
-| --- | ------------------------------------------------------------------ | --------------------- |
-| 1   | `chore: scaffold Next.js app with TypeScript and Tailwind`         | concluído (`7fc06f5`) |
-| 2   | `chore: configure lint, formatting and typecheck`                  | concluído (`1d9e2c2`) |
-| 3   | `chore: configure vitest and playwright`                           | concluído (`d87217f`) |
-| 4   | `docs: add product specification and formatting rules`             | concluído (`4b79573`) |
-| 5   | `docs: add architecture, api, commit and deploy guides`            | concluído (`ed44ff8`) |
-| 6   | `feat(domain): add report block types and line segmentation`       | concluído (`aafd77a`) |
-| 7   | `feat(domain): add generic and cytology formatting presets`        | concluído (`4e70a5e`) |
-| 8   | `feat(domain): add deterministic renderer for b, i and br tags`    | concluído (`ab7f9e7`) |
-| 9   | `feat(domain): add heuristic fallback classifier`                  | concluído (`16f94e8`) |
-| 10  | `test(domain): cover renderer invariants, escaping and spacing`    | concluído (`ac6f905`) |
-| 11  | `feat(ai): add provider factory and structured output schema`      | concluído (`14e7066`) |
-| 12  | `feat(ai): add portuguese classification prompt and repair logic`  | concluído (`79bdc5a`) |
-| 13  | `feat(api): implement format endpoint with fallback handling`      | concluído (`a431fa1`) |
-| 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`) |
-| 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`) |
-| 16  | `feat(ui): add preview, html source and copy actions`              | concluído (`7232103`) |
-| 17  | `feat(ui): add sample reports and privacy notice`                  | concluído (`3bc54e2`) |
-| 18  | `feat(api): add optional spelling suggestion endpoint`             | concluído (`4e7db2f`) |
-| 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | concluído (`f023240`) |
-| 20  | `test(api): cover format and spellcheck routes with mock provider` | concluído (`1151218`) |
-| 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | concluído (`6eba8a2`) |
-| 22  | `ci: run lint, typecheck, unit, build and e2e`                     | concluído (`3dcf817`) |
-| 23  | `docs: add readme with demo, architecture and setup`               | concluído (`7f3667d`) |
-| 24  | `chore: add vercel deployment configuration and env docs`          | pendente              |
+| #   | Commit                                                             | Status                            |
+| --- | ------------------------------------------------------------------ | --------------------------------- |
+| 1   | `chore: scaffold Next.js app with TypeScript and Tailwind`         | concluído (`7fc06f5`)             |
+| 2   | `chore: configure lint, formatting and typecheck`                  | concluído (`1d9e2c2`)             |
+| 3   | `chore: configure vitest and playwright`                           | concluído (`d87217f`)             |
+| 4   | `docs: add product specification and formatting rules`             | concluído (`4b79573`)             |
+| 5   | `docs: add architecture, api, commit and deploy guides`            | concluído (`ed44ff8`)             |
+| 6   | `feat(domain): add report block types and line segmentation`       | concluído (`aafd77a`)             |
+| 7   | `feat(domain): add generic and cytology formatting presets`        | concluído (`4e70a5e`)             |
+| 8   | `feat(domain): add deterministic renderer for b, i and br tags`    | concluído (`ab7f9e7`)             |
+| 9   | `feat(domain): add heuristic fallback classifier`                  | concluído (`16f94e8`)             |
+| 10  | `test(domain): cover renderer invariants, escaping and spacing`    | concluído (`ac6f905`)             |
+| 11  | `feat(ai): add provider factory and structured output schema`      | concluído (`14e7066`)             |
+| 12  | `feat(ai): add portuguese classification prompt and repair logic`  | concluído (`79bdc5a`)             |
+| 13  | `feat(api): implement format endpoint with fallback handling`      | concluído (`a431fa1`)             |
+| 14  | `feat(api): add size limits, rate limiting and request metadata`   | concluído (`e749a4a`)             |
+| 15  | `feat(ui): build two-pane formatting workbench`                    | concluído (`33b76f3`)             |
+| 16  | `feat(ui): add preview, html source and copy actions`              | concluído (`7232103`)             |
+| 17  | `feat(ui): add sample reports and privacy notice`                  | concluído (`3bc54e2`)             |
+| 18  | `feat(api): add optional spelling suggestion endpoint`             | concluído (`4e7db2f`)             |
+| 19  | `feat(ui): add spelling suggestions panel with explicit apply`     | concluído (`f023240`)             |
+| 20  | `test(api): cover format and spellcheck routes with mock provider` | concluído (`1151218`)             |
+| 21  | `test(e2e): cover format, copy, privacy and mobile flows`          | concluído (`6eba8a2`)             |
+| 22  | `ci: run lint, typecheck, unit, build and e2e`                     | concluído (`3dcf817`)             |
+| 23  | `docs: add readme with demo, architecture and setup`               | concluído (`7f3667d`)             |
+| 24  | `chore: add vercel deployment configuration and env docs`          | concluído (`9f2ba5c` + `4d1796e`) |
