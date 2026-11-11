@@ -2,8 +2,8 @@
 
 Atualizado em: 2026-11-11
 Branch: `main`
-Último commit de código: `9f2ba5c chore(config): add security headers and hide next.js version`
-Commit anterior: `4d1796e docs: add demo url and production deploy notes`
+Último commit de código: `7317258 fix(ai): use gemini-3.8-flash and expose sanitized diagnostics`
+Commit anterior: `d367062 docs: update model references and health endpoint`
 Remoto: `origin` publicado; demo em <https://laudo-format.vercel.app>.
 
 ## 0. Regra de trabalho para novas sessões
@@ -94,6 +94,20 @@ Validação local: lint, typecheck, 96 testes e `format:check` passaram. `next b
 (Turbopack e webpack) sofreu OOM nativo na máquina local (≈0,7–1,1 GB livres de 7,9 GB),
 então build e E2E ficam a cargo do CI e do deploy da Vercel.
 
+### 2.1 Incidente de IA (2026-11-11)
+
+- `gemini-2.5-flash` foi aposentado para contas novas (`404 NOT_FOUND`). O default foi
+  trocado para `gemini-3.8-flash` em `7317258` e a documentação/testes em `d367062`.
+- A chave nova foi configurada na Vercel. `GET /api/health` confirma:
+  `googleConfigured: true`, `upstashConfigured: true`, `aiModel: gemini-3.8-flash`,
+  `mockAllowed: false`.
+- **A IA ainda está em fallback**: o Google responde
+  `503 UNAVAILABLE — high demand` para o `gemini-3.8-flash` (teste direto em 5,9 s).
+  O app espera ~20 s (retry + `AbortSignal`) e o log sanitizado mostra `TimeoutError`,
+  mascarando o 503 real.
+- Nada de errado com a chave, o Upstash ou o deploy: falta escolher um modelo com
+  disponibilidade. A tarefa exata está na seção 8.1.
+
 ## 3. Implementado e commitado
 
 Commits existentes:
@@ -103,7 +117,7 @@ Commits existentes:
 `33b76f3`, `7232103`, `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`,
 `6eba8a2`, `d02266e`, `a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`,
 `27b4c1b`, `b7bb50f`, `829accc`, `1c2c436`, `39d597f`, `6037c1c`, `9f2ba5c`,
-`4d1796e`.
+`4d1796e`, `7d63168`, `7317258`, `d367062`.
 
 Arquivos implementados:
 
@@ -238,24 +252,24 @@ Arquivos implementados:
 ## 4. Nenhum código pendente de commit
 
 A etapa 24 foi commitada em `9f2ba5c` (headers) e `4d1796e` (README, DEPLOY,
-ARCHITECTURE e API); a etapa 23 está em `7f3667d`/`27b4c1b`, a etapa 22 em `3dcf817`, a
-etapa 21 em `6eba8a2` e a skill local em `a41a02c`/`a59907b`. As atualizações de
-continuidade (`ROADMAP.md`/`PROGRESS.md` desta sessão) são commitadas separadamente.
+ARCHITECTURE e API); o incidente de IA foi tratado em `7317258` (modelo + diagnóstico) e
+`d367062` (docs). A etapa 23 está em `7f3667d`/`27b4c1b`, a etapa 22 em `3dcf817`, a
+etapa 21 em `6eba8a2` e a skill local em `a41a02c`/`a59907b`.
 
 Os commits das etapas 12–24 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232103`,
 `3bc54e2`, `4e7db2f`, `f023240`, `1151218`, `a41a02c`, `6eba8a2`, `d02266e`,
 `a59907b`, `3dcf817`, `50e1819`, `7f3667d`, `e991a53`, `27b4c1b`, `b7bb50f`,
-`829accc`, `1c2c436`, `39d597f`, `6037c1c`, `9f2ba5c`, `4d1796e`) estão íntegros.
+`829accc`, `1c2c436`, `39d597f`, `6037c1c`, `9f2ba5c`, `4d1796e`, `7d63168`,
+`7317258`, `d367062`) estão íntegros. O CI passou nos runs #2–#7.
 
 ## 5. Pós-roadmap (opcional)
 
+- **Destravar a IA**: escolher um modelo flash disponível (seção 8.1).
 - Proteger `main` no GitHub exigindo o check de CI verde.
-- Configurar `GOOGLE_GENERATIVE_AI_API_KEY` e Upstash na Vercel para sair do fallback
-  heurístico e ter rate limit distribuído.
 - Ampliar a cobertura de `src/lib/ai` (caminho real do provider, sem mock).
 - Adicionar testes de componente para preview, ortografia e aviso de privacidade.
 - Atualizar o Node local para o último 22.x (`nvm use`) e remover os avisos
-  `EBADENGINE`.
+  `EBADENGINE` (a versão varia por máquina).
 
 ## 6. Decisões técnicas tomadas
 
@@ -371,10 +385,12 @@ Os commits das etapas 12–24 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 
 ## 7. Problemas conhecidos e pontos de atenção
 
-- **Push.** `main` foi publicada em 2026-11-11 com a etapa 24. O CI roda em push/PR e
-  a Vercel faz o deploy automático. O remoto é
+- **Push.** `main` publicada até `d367062`; CI verde nos runs #2–#7. O remoto é
   `https://github.com/LuizClaudioAds/laudo-format.git`; se a credencial expirar, repita
   o push em terminal interativo.
+- **IA em fallback por 503.** A configuração está correta, mas o `gemini-3.8-flash`
+  responde `503 UNAVAILABLE` (alta demanda). O app espera ~20 s e cai na heurística; o
+  log mostra `TimeoutError`. Ver seção 8.1.
 - **Sem testes de componente.** Os fluxos principais agora têm cobertura E2E, mas
   `report-preview`, `suggestions-panel` e `privacy-notice` continuam sem testes de
   componente isolados.
@@ -390,46 +406,86 @@ Os commits das etapas 12–24 (`79bdc5a`, `a431fa1`, `e749a4a`, `33b76f3`, `7232
 - **Metadados de mock.** Em modo mock, `provider` vira `mock`, mas `model` continua
   vindo de `AI_MODEL` (por exemplo, `gemini-3.8-flash`). Normalizar para `heuristic`
   é uma melhoria opcional.
-- **`classifyReport` engole o erro original.** Isso é intencional para não vazar
-  detalhes do provedor, mas dificulta diagnóstico. Logs futuros devem ser sanitizados
-  e nunca incluir o texto do laudo.
+- **`classifyReport`/`spellcheckReport` ainda caem no fallback.** O erro agora é
+  registrado de forma sanitizada (`type`, `status`, `code`) via
+  `src/lib/ai/diagnostics.ts`, mas o status do último erro antes do abort ainda não é
+  preservado; por isso um 503 pode aparecer como `TimeoutError`. Melhoria planejada.
 - **Sem `runtime` exportado na rota.** Com `cacheComponents` ativo, o Next.js 16.4.5
   não aceita o segment config `runtime`; o padrão já é Node.js.
 - **Vitest warnings.** Config ESM/CJS e `vite-tsconfig-paths`; não falham. Limpeza
   opcional.
-- **Playwright.** Chromium e FFmpeg instalados localmente; o workflow instala
-  `chromium --with-deps` no Ubuntu, mas ainda não rodou no GitHub.
-- **Node local 22.14.0.** `jsdom@31` pede `^22.22.2` e `lint-staged@17.6` pede
-  `>=22.22.1`; o `npm install` emite `EBADENGINE`, mas lint, typecheck, testes, build e
-  E2E passaram. O CI usa o último 22.x via `.nvmrc`; atualizar o Node local com
-  `nvm use` remove os avisos.
+- **Playwright.** Chromium e FFmpeg instalados na máquina de 2026-11-10/11; o workflow
+  instala `chromium --with-deps` no Ubuntu e passou nos runs #2–#7.
+- **Node local 22.14.0 (máquina anterior).** `jsdom@31` pede `^22.22.2` e
+  `lint-staged@17.6` pede `>=22.22.1`; o `npm install` emite `EBADENGINE`, mas os testes
+  passam. O CI usa o último 22.x via `.nvmrc`; na nova máquina, verifique `node -v`.
 - **Sem chave Google/Upstash local.** O comportamento esperado é fallback heurístico.
 - **`next.config.ts`** mantém `cacheComponents` e `partialPrefetching` e agora aplica
   headers de segurança globalmente, com `poweredByHeader: false`.
-- **Build local limitado por RAM.** Com ≈0,7–1,1 GB livres de 7,9 GB, `next build`
-  (Turbopack e webpack) falhou com OOM nativo (`Zone Allocation failed`); lint,
-  typecheck, testes e `format:check` passam. Valide build/E2E pelo CI até liberar
-  memória na máquina.
+- **Build local limitado por RAM (máquina anterior).** Com ≈0,7–1,1 GB livres de 7,9 GB,
+  `next build` (Turbopack e webpack) falhou com OOM nativo (`Zone Allocation failed`);
+  lint, typecheck, testes e `format:check` passaram. Na nova máquina, reavalie; se
+  ocorrer de novo, valide build/E2E pelo CI.
 - **`docs/SPEC.md` foi movido para `SPEC.md`** em sessão anterior; os links internos
   foram ajustados para `docs/RULES.md` e `docs/API.md`.
 
 ## 8. Próximos passos
 
-### 8.0 Estado ao retomar
+### 8.0 Estado ao retomar (outra máquina, 2026-11-12)
 
-- Roadmap concluído (etapas 1–24); `main` publicada e deploy automático na Vercel.
-- Demo: <https://laudo-format.vercel.app>.
-- CI roda em push para `main` e em pull requests; build e E2E são validados no Ubuntu.
-- Nenhuma tarefa obrigatória pendente. As melhorias opcionais estão na seção 5.
+- Roadmap (etapas 1–24) concluído; `main` publicada, CI verde até o run #7 e deploy em
+  <https://laudo-format.vercel.app>. O commit desta documentação dispara um run docs-only.
+- **Única pendência funcional:** a IA está em fallback porque o `gemini-3.8-flash`
+  responde `503 UNAVAILABLE` (alta demanda). Chave, Upstash, headers e modelo configurado
+  estão corretos (`/api/health` comprova).
+- `node_modules` não é versionado: rode `npm.cmd install`. Para E2E:
+  `npx.cmd playwright install chromium`. Confira `node -v` (ideal: último 22.x).
+- Build local pode falhar por OOM dependendo da RAM da máquina; nesse caso use o CI como
+  gate. Os testes unitários e o typecheck rodam normalmente.
 
-### 8.1 Continuidade sugerida
+### 8.1 Tarefa exata: escolher um modelo com disponibilidade
 
-1. Confirmar no domínio os headers após o redeploy e o checklist de `docs/DEPLOY.md`.
-2. Configurar `GOOGLE_GENERATIVE_AI_API_KEY`, `IP_HASH_SALT` e Upstash na Vercel para
-   sair do fallback e ter rate limit distribuído.
-3. Proteger `main` exigindo o check de CI.
-4. Opcional: ampliar cobertura de `src/lib/ai` e testes de componente.
-5. Manter a regra de uma mudança lógica por commit e nenhum dado real de paciente.
+1. Com a chave nova em `.env.local` (nunca commitar), teste os modelos:
+
+```powershell
+$key = (Get-Content .env.local | Select-String '^GOOGLE_GENERATIVE_AI_API_KEY=').ToString().Split('=',2)[1]
+$body = '{"contents":[{"parts":[{"text":"Responda apenas OK"}]}]}'
+foreach ($m in @(
+  'gemini-3.8-flash','gemini-3.7-flash','gemini-3.6-flash',
+  'gemini-3.5-flash','gemini-3.1-flash-lite-preview','gemini-flash-latest'
+)) {
+  $uri = "https://generativelanguage.googleapis.com/v1beta/models/$($m):generateContent"
+  $sw = [Diagnostics.Stopwatch]::StartNew()
+  try {
+    $null = Invoke-RestMethod -Method Post -Uri $uri `
+      -Headers @{ 'x-goog-api-key' = $key } -ContentType 'application/json' -Body $body
+    "{0}: OK em {1:n1}s" -f $m, $sw.Elapsed.TotalSeconds
+  } catch {
+    $code = if ($_.Exception.Response) { [int]$_.Exception.Response.StatusCode } else { 'ERRO' }
+    "{0}: HTTP {1} em {2:n1}s" -f $m, $code, $sw.Elapsed.TotalSeconds
+  }
+}
+```
+
+2. Escolha o primeiro `200` rápido e atualize o default em `src/lib/env.ts`,
+   `.env.example`, `tests/unit/pipeline.test.ts`, `tests/integration/routes.test.ts` e
+   nas referências de `README.md`, `docs/DEPLOY.md`, `docs/API.md` e `AGENTS.md`.
+3. Opcional recomendado: `AI_FALLBACK_MODEL` (segundo modelo) tentado em
+   `503/429/404`, com o mesmo orçamento de 20 s, e registro do status real antes do
+   abort (para um 503 não aparecer mais como `TimeoutError`).
+4. Commit + push; aguarde CI e Vercel; valide:
+   - `GET /api/health` → `aiModel` novo e flags corretas;
+   - `POST /api/format` com texto fictício → `usedFallback: false`;
+   - `POST /api/spellcheck` → `usedFallback: false` quando houver IA.
+5. Se todos os modelos derem 503, mantenha o fallback e reduza o tempo de espera
+   (ex.: `maxRetries: 0` ou timeout menor por tentativa), registrando a mudança em
+   `AGENTS.md` e neste arquivo.
+
+### 8.2 Pendências opcionais
+
+- Proteger `main` exigindo o check de CI.
+- Ampliar cobertura de `src/lib/ai` e adicionar testes de componente.
+- Atualizar o Node local para o último 22.x.
 
 ## 9. Comandos de verificação
 

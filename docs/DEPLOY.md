@@ -158,6 +158,7 @@ o check de CI verde antes do merge.
 | --------------------- | ----------------------- | ----------------------------------------------------------------- |
 | “Modo básico” sempre  | Chave ausente/inválida  | Conferir `GOOGLE_GENERATIVE_AI_API_KEY`                           |
 | 429 frequente         | Rate limit ou quota     | Ajustar limites/plano                                             |
+| 503 / IA em fallback  | Alta demanda do modelo  | Trocar `AI_MODEL` por outro flash disponível e redeploy           |
 | Erro 500              | Configuração inválida   | Ver logs da Vercel pelo `requestId`                               |
 | HTML vazio            | Texto vazio ou inválido | Conferir mensagem da API                                          |
 | Preview sem quebras   | CSS do alvo             | O fragmento usa `<br>`; o sistema de destino deve renderizar HTML |
