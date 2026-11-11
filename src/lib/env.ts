@@ -9,7 +9,7 @@ function readPositiveInteger(value: string | undefined, fallback: number): numbe
 
 export const env = {
   aiProvider: process.env.AI_PROVIDER?.trim() || "google",
-  aiModel: process.env.AI_MODEL?.trim() || "gemini-2.5-flash",
+  aiModel: process.env.AI_MODEL?.trim() || "gemini-3.8-flash",
   allowMockAi: process.env.ALLOW_MOCK_AI === "true",
   googleApiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() || "",
   upstashUrl: process.env.UPSTASH_REDIS_REST_URL?.trim() || "",

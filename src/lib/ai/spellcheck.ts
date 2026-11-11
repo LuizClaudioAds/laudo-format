@@ -5,6 +5,7 @@ import { segmentInput } from "@/lib/format/segment";
 import type { SpellCheckResult } from "@/lib/format/types";
 import { repairSuggestions } from "@/lib/spell/suggest";
 import { buildSpellCheckPrompt, SPELLCHECK_SYSTEM_PROMPT } from "./prompt";
+import { describeProviderError } from "./diagnostics";
 import { createLanguageModel, getProviderInfo } from "./provider";
 import { spellCheckSchema } from "./schema";
 
@@ -64,7 +65,9 @@ export async function spellcheckReport(rawText: string): Promise<SpellCheckResul
       [...(object.warnings ?? []), ...repaired.warnings],
       startedAt,
     );
-  } catch {
+  } catch (error) {
+    console.error("[ai] spellcheck failed", describeProviderError(error));
+
     return buildResult(
       [],
       true,

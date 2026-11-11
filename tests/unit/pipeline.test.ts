@@ -42,7 +42,7 @@ describe("formatReport", () => {
       .filter((line) => line.trim().length > 0);
 
     expect(result.meta.provider).toBe("mock");
-    expect(result.meta.model).toBe("gemini-2.5-flash");
+    expect(result.meta.model).toBe("gemini-3.8-flash");
     expect(result.meta.usedFallback).toBe(true);
     expect(result.meta.durationMs).toBeGreaterThanOrEqual(0);
     expect(result.meta.characters).toBe(normalizeText(CITOLOGY_RAW).length);

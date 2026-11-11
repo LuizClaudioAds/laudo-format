@@ -5,6 +5,7 @@ import { heuristicClassify } from "@/lib/format/heuristics";
 import type { ClassifiedReport, ReportPreset, SegmentedInput } from "@/lib/format/types";
 import { repairClassification } from "@/lib/format/validate";
 import { buildClassificationPrompt, CLASSIFICATION_SYSTEM_PROMPT } from "./prompt";
+import { describeProviderError } from "./diagnostics";
 import { createLanguageModel, getProviderInfo } from "./provider";
 import { classificationSchema } from "./schema";
 
@@ -67,7 +68,9 @@ export async function classifyReport(
       provider: info.provider,
       model: info.model,
     };
-  } catch {
+  } catch (error) {
+    console.error("[ai] classification failed", describeProviderError(error));
+
     return fallbackOutcome(input, preset, [
       "IA indisponível no momento. A formatação básica foi aplicada.",
     ]);

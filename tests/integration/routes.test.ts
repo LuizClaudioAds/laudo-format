@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { isContentPreserved, onlyAllowedTags } from "@/lib/format/invariants";
 import type { FormatResult, SpellCheckResult } from "@/lib/format/types";
 
+vi.mock("next/server", () => ({
+  connection: async () => undefined,
+}));
+
 const FORMAT_URL = "http://localhost/api/format";
 const SPELL_URL = "http://localhost/api/spellcheck";
 const CLIENT_IP = "198.51.100.10";
@@ -11,10 +15,12 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 
 type FormatPost = typeof import("@/app/api/format/route").POST;
 type SpellPost = typeof import("@/app/api/spellcheck/route").POST;
+type HealthGet = typeof import("@/app/api/health/route").GET;
 
 interface Routes {
   format: FormatPost;
   spell: SpellPost;
+  health: HealthGet;
 }
 
 interface ErrorPayload {
@@ -37,12 +43,13 @@ async function loadRoutes(overrides: Record<string, string> = {}): Promise<Route
 
   vi.resetModules();
 
-  const [formatRoute, spellRoute] = await Promise.all([
+  const [formatRoute, spellRoute, healthRoute] = await Promise.all([
     import("@/app/api/format/route"),
     import("@/app/api/spellcheck/route"),
+    import("@/app/api/health/route"),
   ]);
 
-  return { format: formatRoute.POST, spell: spellRoute.POST };
+  return { format: formatRoute.POST, spell: spellRoute.POST, health: healthRoute.GET };
 }
 
 function postRequest(
@@ -116,7 +123,7 @@ describe("POST /api/format", () => {
       "Modo mock ativo: classificação heurística aplicada sem chamada de IA.",
     );
     expect(payload.meta.provider).toBe("mock");
-    expect(payload.meta.model).toBe("gemini-2.5-flash");
+    expect(payload.meta.model).toBe("gemini-3.8-flash");
     expect(payload.meta.usedFallback).toBe(true);
     expect(payload.meta.durationMs).toBeGreaterThanOrEqual(0);
     expect(payload.meta.characters).toBe(REPORT.length);
@@ -290,5 +297,44 @@ describe("fallback sem chave Google", () => {
     expect(spellPayload.warnings).toContain(
       "IA indisponível no momento. Nenhuma sugestão ortográfica foi gerada.",
     );
+  });
+});
+
+describe("GET /api/health", () => {
+  it("expõe apenas flags de configuração, sem segredos", async () => {
+    const routes = await loadRoutes();
+    const response = await routes.health();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("x-request-id")).toMatch(UUID_PATTERN);
+
+    const payload = (await response.json()) as Record<string, unknown>;
+
+    expect(payload).toEqual({
+      ok: true,
+      aiProvider: "mock",
+      aiModel: "gemini-3.8-flash",
+      googleConfigured: false,
+      upstashConfigured: false,
+      mockAllowed: true,
+    });
+    expect(JSON.stringify(payload)).not.toContain("integration-test-salt");
+  });
+
+  it("reflete chave e Upstash configurados sem expor valores", async () => {
+    const routes = await loadRoutes({
+      GOOGLE_GENERATIVE_AI_API_KEY: "test-google-key",
+      UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
+      UPSTASH_REDIS_REST_TOKEN: "test-upstash-token",
+    });
+
+    const response = await routes.health();
+    const payload = (await response.json()) as Record<string, unknown>;
+
+    expect(payload.googleConfigured).toBe(true);
+    expect(payload.upstashConfigured).toBe(true);
+    expect(JSON.stringify(payload)).not.toContain("test-google-key");
+    expect(JSON.stringify(payload)).not.toContain("test-upstash-token");
   });
 });
