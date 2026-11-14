@@ -6,10 +6,9 @@ import type { ClassifiedReport, ReportPreset, SegmentedInput } from "@/lib/forma
 import { repairClassification } from "@/lib/format/validate";
 import { buildClassificationPrompt, CLASSIFICATION_SYSTEM_PROMPT } from "./prompt";
 import { describeProviderError } from "./diagnostics";
+import { runWithModelFallback } from "./models";
 import { createLanguageModel, getProviderInfo } from "./provider";
 import { classificationSchema } from "./schema";
-
-const AI_TIMEOUT_MS = 20_000;
 
 export interface ClassificationOutcome {
   report: ClassifiedReport;
@@ -46,30 +45,40 @@ export async function classifyReport(
   }
 
   try {
-    const model = createLanguageModel();
-    const { object } = await generateObject({
-      model,
-      schema: classificationSchema,
-      system: CLASSIFICATION_SYSTEM_PROMPT,
-      prompt: buildClassificationPrompt(input.lines, preset),
-      temperature: 0,
-      maxOutputTokens: 2_000,
-      maxRetries: 1,
-      abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS),
+    const generated = await runWithModelFallback(async (modelId, signal) => {
+      const model = createLanguageModel(modelId);
+      const { object } = await generateObject({
+        model,
+        schema: classificationSchema,
+        system: CLASSIFICATION_SYSTEM_PROMPT,
+        prompt: buildClassificationPrompt(input.lines, preset),
+        temperature: 0,
+        maxOutputTokens: 2_000,
+        maxRetries: 0,
+        abortSignal: signal,
+      });
+
+      return object;
     });
 
-    const repaired = repairClassification(input.lines, object, preset);
+    if (!generated) {
+      return fallbackOutcome(input, preset, [
+        "IA indisponível no momento. A formatação básica foi aplicada.",
+      ]);
+    }
+
+    const repaired = repairClassification(input.lines, generated.value, preset);
     const info = getProviderInfo();
 
     return {
       report: repaired.report,
       usedFallback: false,
-      warnings: [...(object.warnings ?? []), ...repaired.warnings],
+      warnings: [...(generated.value.warnings ?? []), ...repaired.warnings],
       provider: info.provider,
-      model: info.model,
+      model: generated.modelId,
     };
   } catch (error) {
-    console.error("[ai] classification failed", describeProviderError(error));
+    console.error("[ai] classification repair failed", describeProviderError(error));
 
     return fallbackOutcome(input, preset, [
       "IA indisponível no momento. A formatação básica foi aplicada.",

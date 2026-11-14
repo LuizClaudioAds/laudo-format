@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { describeProviderError } from "@/lib/ai/diagnostics";
+import { describeProviderError, isRetryableProviderError } from "@/lib/ai/diagnostics";
 
 describe("describeProviderError", () => {
   it("extrai apenas tipo, status e código, sem a mensagem", () => {
@@ -28,5 +28,30 @@ describe("describeProviderError", () => {
   it("lida com valores que não são Error", () => {
     expect(describeProviderError("falha")).toEqual({ type: "string" });
     expect(describeProviderError(null)).toEqual({ type: "object" });
+  });
+});
+
+describe("isRetryableProviderError", () => {
+  it("aceita status transitórios e timeout", () => {
+    for (const status of [404, 408, 429, 500, 502, 503, 504]) {
+      expect(isRetryableProviderError(Object.assign(new Error("x"), { statusCode: status }))).toBe(
+        true,
+      );
+    }
+
+    expect(isRetryableProviderError(Object.assign(new Error("x"), { name: "TimeoutError" }))).toBe(
+      true,
+    );
+  });
+
+  it("recusa erros de configuração e valores desconhecidos", () => {
+    expect(isRetryableProviderError(Object.assign(new Error("x"), { statusCode: 400 }))).toBe(
+      false,
+    );
+    expect(isRetryableProviderError(Object.assign(new Error("x"), { statusCode: 403 }))).toBe(
+      false,
+    );
+    expect(isRetryableProviderError("falha")).toBe(false);
+    expect(isRetryableProviderError(null)).toBe(false);
   });
 });

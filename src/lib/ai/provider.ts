@@ -15,7 +15,7 @@ export function getProviderInfo(): ProviderInfo {
   };
 }
 
-export function createLanguageModel(): LanguageModel {
+export function createLanguageModel(modelId: string = env.aiModel): LanguageModel {
   switch (env.aiProvider) {
     case "google": {
       if (!env.googleApiKey) {
@@ -23,7 +23,7 @@ export function createLanguageModel(): LanguageModel {
       }
 
       const google = createGoogleGenerativeAI({ apiKey: env.googleApiKey });
-      return google(env.aiModel);
+      return google(modelId);
     }
     case "mock": {
       throw new Error("O provider mock não utiliza modelo de linguagem.");

@@ -6,16 +6,16 @@ import type { SpellCheckResult } from "@/lib/format/types";
 import { repairSuggestions } from "@/lib/spell/suggest";
 import { buildSpellCheckPrompt, SPELLCHECK_SYSTEM_PROMPT } from "./prompt";
 import { describeProviderError } from "./diagnostics";
+import { runWithModelFallback } from "./models";
 import { createLanguageModel, getProviderInfo } from "./provider";
 import { spellCheckSchema } from "./schema";
-
-const AI_TIMEOUT_MS = 20_000;
 
 function buildResult(
   suggestions: SpellCheckResult["suggestions"],
   usedFallback: boolean,
   warnings: string[],
   startedAt: number,
+  model: string = getProviderInfo().model,
 ): SpellCheckResult {
   const info = getProviderInfo();
 
@@ -24,7 +24,7 @@ function buildResult(
     warnings,
     meta: {
       provider: info.provider,
-      model: info.model,
+      model,
       usedFallback,
       durationMs: Math.round(performance.now() - startedAt),
     },
@@ -45,28 +45,42 @@ export async function spellcheckReport(rawText: string): Promise<SpellCheckResul
   }
 
   try {
-    const model = createLanguageModel();
-    const { object } = await generateObject({
-      model,
-      schema: spellCheckSchema,
-      system: SPELLCHECK_SYSTEM_PROMPT,
-      prompt: buildSpellCheckPrompt(input.lines),
-      temperature: 0,
-      maxOutputTokens: 2_000,
-      maxRetries: 1,
-      abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS),
+    const generated = await runWithModelFallback(async (modelId, signal) => {
+      const model = createLanguageModel(modelId);
+      const { object } = await generateObject({
+        model,
+        schema: spellCheckSchema,
+        system: SPELLCHECK_SYSTEM_PROMPT,
+        prompt: buildSpellCheckPrompt(input.lines),
+        temperature: 0,
+        maxOutputTokens: 2_000,
+        maxRetries: 0,
+        abortSignal: signal,
+      });
+
+      return object;
     });
 
-    const repaired = repairSuggestions(input.lines, object.suggestions);
+    if (!generated) {
+      return buildResult(
+        [],
+        true,
+        ["IA indisponível no momento. Nenhuma sugestão ortográfica foi gerada."],
+        startedAt,
+      );
+    }
+
+    const repaired = repairSuggestions(input.lines, generated.value.suggestions);
 
     return buildResult(
       repaired.suggestions,
       false,
-      [...(object.warnings ?? []), ...repaired.warnings],
+      [...(generated.value.warnings ?? []), ...repaired.warnings],
       startedAt,
+      generated.modelId,
     );
   } catch (error) {
-    console.error("[ai] spellcheck failed", describeProviderError(error));
+    console.error("[ai] spellcheck repair failed", describeProviderError(error));
 
     return buildResult(
       [],

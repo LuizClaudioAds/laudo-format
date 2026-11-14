@@ -7,9 +7,27 @@ function readPositiveInteger(value: string | undefined, fallback: number): numbe
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function readModelList(value: string | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
+const DEFAULT_FALLBACK_MODELS = "gemini-3.7-flash,gemini-3.6-flash";
+
 export const env = {
   aiProvider: process.env.AI_PROVIDER?.trim() || "google",
   aiModel: process.env.AI_MODEL?.trim() || "gemini-3.8-flash",
+  aiFallbackModels: readModelList(process.env.AI_FALLBACK_MODELS ?? DEFAULT_FALLBACK_MODELS),
   allowMockAi: process.env.ALLOW_MOCK_AI === "true",
   googleApiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() || "",
   upstashUrl: process.env.UPSTASH_REDIS_REST_URL?.trim() || "",

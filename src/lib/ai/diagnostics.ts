@@ -26,3 +26,23 @@ export function describeProviderError(error: unknown): ProviderErrorDetails {
 
   return details;
 }
+
+const RETRYABLE_STATUS_CODES = new Set([404, 408, 429, 500, 502, 503, 504]);
+
+/**
+ * A retryable provider failure (deprecated model, rate limit, outage, timeout)
+ * is a reason to try the next configured model instead of giving up.
+ */
+export function isRetryableProviderError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (error.name === "TimeoutError") {
+    return true;
+  }
+
+  const statusCode = (error as Error & { statusCode?: unknown }).statusCode;
+
+  return typeof statusCode === "number" && RETRYABLE_STATUS_CODES.has(statusCode);
+}

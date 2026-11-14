@@ -12,6 +12,7 @@ export async function GET(): Promise<Response> {
       ok: true,
       aiProvider: env.aiProvider,
       aiModel: env.aiModel,
+      aiFallbackModels: env.aiFallbackModels,
       googleConfigured: isGoogleConfigured(),
       upstashConfigured: isUpstashConfigured(),
       mockAllowed: env.allowMockAi,
