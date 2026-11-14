@@ -25,18 +25,19 @@ O demo atual está em <https://laudo-format.vercel.app>.
 Configure em **Project → Settings → Environment Variables** para Production,
 Preview e Development:
 
-| Variável                       | Obrigatória | Exemplo            | Descrição                 |
-| ------------------------------ | ----------- | ------------------ | ------------------------- |
-| `AI_PROVIDER`                  | sim         | `google`           | Provider de IA            |
-| `AI_MODEL`                     | sim         | `gemini-3.8-flash` | Modelo usado              |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | sim para IA | `AIza...`          | Chave do Google AI Studio |
-| `UPSTASH_REDIS_REST_URL`       | recomendado | `https://...`      | URL do Redis              |
-| `UPSTASH_REDIS_REST_TOKEN`     | recomendado | `AX...`            | Token do Redis            |
-| `IP_HASH_SALT`                 | recomendado | string aleatória   | Salt do hash de IP        |
-| `RATE_LIMIT_FORMAT`            | não         | `10`               | Formatações por minuto    |
-| `RATE_LIMIT_SPELL`             | não         | `5`                | Ortografias por minuto    |
-| `ALLOW_MOCK_AI`                | não         | `false`            | Nunca `true` em produção  |
-| `NEXT_PUBLIC_APP_URL`          | não         | `https://...`      | URL pública               |
+| Variável                       | Obrigatória | Exemplo                             | Descrição                           |
+| ------------------------------ | ----------- | ----------------------------------- | ----------------------------------- |
+| `AI_PROVIDER`                  | sim         | `google`                            | Provider de IA                      |
+| `AI_MODEL`                     | sim         | `gemini-3.8-flash`                  | Modelo usado                        |
+| `AI_FALLBACK_MODELS`           | não         | `gemini-3.7-flash,gemini-3.6-flash` | Modelos alternativos em 503/429/404 |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | sim para IA | `AIza...`                           | Chave do Google AI Studio           |
+| `UPSTASH_REDIS_REST_URL`       | recomendado | `https://...`                       | URL do Redis                        |
+| `UPSTASH_REDIS_REST_TOKEN`     | recomendado | `AX...`                             | Token do Redis                      |
+| `IP_HASH_SALT`                 | recomendado | string aleatória                    | Salt do hash de IP                  |
+| `RATE_LIMIT_FORMAT`            | não         | `10`                                | Formatações por minuto              |
+| `RATE_LIMIT_SPELL`             | não         | `5`                                 | Ortografias por minuto              |
+| `ALLOW_MOCK_AI`                | não         | `false`                             | Nunca `true` em produção            |
+| `NEXT_PUBLIC_APP_URL`          | não         | `https://...`                       | URL pública                         |
 
 > A ausência da chave do Gemini não quebra o deploy: a aplicação usa o classificador
 > heurístico e responde `usedFallback: true`. Ainda assim, configure a chave para o demo
@@ -53,7 +54,10 @@ Use um `IP_HASH_SALT` aleatório e diferente por ambiente. `RATE_LIMIT_FORMAT` e
 2. Adicione em `GOOGLE_GENERATIVE_AI_API_KEY`.
 3. Ajuste `AI_MODEL` se necessário. O default do projeto é `gemini-3.8-flash`;
    `gemini-2.5-flash` foi aposentado para novas contas.
-4. O free tier tem quotas e pode usar dados enviados para melhoria do produto.
+4. `AI_FALLBACK_MODELS` (opcional) lista modelos alternativos tentados quando o
+   principal responde 503/429/404 ou estoura o tempo. O padrão é
+   `gemini-3.7-flash,gemini-3.6-flash` e todos compartilham um orçamento de 20 s.
+5. O free tier tem quotas e pode usar dados enviados para melhoria do produto.
    **Não use dados reais de pacientes no demo público.** Para uso clínico real, é
    necessário um plano/contrato compatível com PHI e revisão jurídica.
 

@@ -82,7 +82,8 @@ npm.cmd run test:e2e
 
 - A IA recebe ids e texto das linhas segmentadas e o preset.
 - O schema Zod deve continuar restrito a IDs, tipos, spans e avisos.
-- `temperature: 0`, timeout de 20 s, `maxRetries: 1` e fallback heurístico.
+- `temperature: 0`, orçamento de 20 s compartilhado entre `AI_MODEL` e
+  `AI_FALLBACK_MODELS`, `maxRetries: 0` por tentativa e fallback heurístico.
 - Falha da IA, ausência de chave, mock e timeout retornam HTTP 200 com `usedFallback: true` e aviso em pt-BR.
 - Não expor mensagens internas do provedor, chaves, stack traces ou payloads nos erros.
 - `ALLOW_MOCK_AI=true` só em desenvolvimento/teste; nunca em produção pública.

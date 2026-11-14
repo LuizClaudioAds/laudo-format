@@ -174,6 +174,7 @@ o que o runtime do deploy está enxergando.
   "ok": true,
   "aiProvider": "google",
   "aiModel": "gemini-3.8-flash",
+  "aiFallbackModels": ["gemini-3.7-flash", "gemini-3.6-flash"],
   "googleConfigured": true,
   "upstashConfigured": true,
   "mockAllowed": false

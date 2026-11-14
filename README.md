@@ -65,18 +65,19 @@ abaixo.
 
 3. Preencha as variáveis necessárias. Principais:
 
-   | Variável                       | Descrição                                           |
-   | ------------------------------ | --------------------------------------------------- |
-   | `AI_PROVIDER`                  | `google` (padrão) ou `mock`                         |
-   | `AI_MODEL`                     | Modelo usado (padrão: `gemini-3.8-flash`)           |
-   | `GOOGLE_GENERATIVE_AI_API_KEY` | Chave do Google AI Studio                           |
-   | `UPSTASH_REDIS_REST_URL`       | URL do Redis do Upstash (opcional)                  |
-   | `UPSTASH_REDIS_REST_TOKEN`     | Token do Redis do Upstash (opcional)                |
-   | `IP_HASH_SALT`                 | Salt usado para hashear IPs no rate limit           |
-   | `ALLOW_MOCK_AI`                | Habilita o mock apenas em desenvolvimento/teste     |
-   | `RATE_LIMIT_FORMAT`            | Formatações por minuto (padrão: `10`)               |
-   | `RATE_LIMIT_SPELL`             | Sugestões ortográficas por minuto (padrão: `5`)     |
-   | `NEXT_PUBLIC_APP_URL`          | URL pública da aplicação (padrão: `localhost:3000`) |
+   | Variável                       | Descrição                                             |
+   | ------------------------------ | ----------------------------------------------------- |
+   | `AI_PROVIDER`                  | `google` (padrão) ou `mock`                           |
+   | `AI_MODEL`                     | Modelo usado (padrão: `gemini-3.8-flash`)             |
+   | `AI_FALLBACK_MODELS`           | Modelos alternativos separados por vírgula (opcional) |
+   | `GOOGLE_GENERATIVE_AI_API_KEY` | Chave do Google AI Studio                             |
+   | `UPSTASH_REDIS_REST_URL`       | URL do Redis do Upstash (opcional)                    |
+   | `UPSTASH_REDIS_REST_TOKEN`     | Token do Redis do Upstash (opcional)                  |
+   | `IP_HASH_SALT`                 | Salt usado para hashear IPs no rate limit             |
+   | `ALLOW_MOCK_AI`                | Habilita o mock apenas em desenvolvimento/teste       |
+   | `RATE_LIMIT_FORMAT`            | Formatações por minuto (padrão: `10`)                 |
+   | `RATE_LIMIT_SPELL`             | Sugestões ortográficas por minuto (padrão: `5`)       |
+   | `NEXT_PUBLIC_APP_URL`          | URL pública da aplicação (padrão: `localhost:3000`)   |
 
 Sem `GOOGLE_GENERATIVE_AI_API_KEY`, a aplicação continua funcionando com o
 classificador heurístico e responde HTTP 200 com `usedFallback: true`.
